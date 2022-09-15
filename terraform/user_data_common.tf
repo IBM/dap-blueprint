@@ -65,14 +65,14 @@ locals {
       "MAIL_PASSWORD": var.MAIL_PASSWORD,
       "DBAAS_RESOURCE_GROUP": var.DBAAS_RESOURCE_GROUP,
       "RHSSO_ADMIN_PASSWORD": var.RHSSO_ADMIN_PASSWORD,
-      "RHPAH_ADMIN_PASSWORD": var.RHPAM_ADMIN_PASSWORD,
+      "RHPAM_ADMIN_PASSWORD": var.RHPAM_ADMIN_PASSWORD,
       "RHPAM_USER_PASSWORD": var.RHPAM_USER_PASSWORD,
       "RHPAM_APPROVER_PASSWORD": var.RHPAM_APPROVER_PASSWORD
     }
   }
   workload_template = {
     "type" : "workload",
-    "auths": local.auths
-    # "images": "${var.DCT_PUBKEY != "" ? local.images : {}}"
+    "auths": local.auths,
+    "images": "${var.DCT_PUBKEY != "" ? local.images : {}}"
   }
 }

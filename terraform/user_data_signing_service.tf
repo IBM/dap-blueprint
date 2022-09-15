@@ -5,17 +5,16 @@ resource "hpcr_tgz" "signing_service_workload" {
 }
 
 locals {
+  signing_service_compose = {
+    "compose" : {
+      "archive" : hpcr_tgz.signing_service_workload.rendered
+    }
+  }
+  signing_service_workload = merge(local.workload_template, local.signing_service_compose)
   # contract in clear text
   signing_service_contract = yamlencode({
     "env" : local.env,
-    "workload" : {
-      "type" : "workload",
-      "compose" : {
-        "archive" : hpcr_tgz.signing_service_workload.rendered
-      },
-      "auths": local.auths,
-      "images": local.images
-    }
+    "workload" : local.signing_service_workload
   })
 }
 

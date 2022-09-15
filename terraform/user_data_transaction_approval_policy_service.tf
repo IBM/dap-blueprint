@@ -5,17 +5,16 @@ resource "hpcr_tgz" "transaction_approval_policy_service_workload" {
 }
 
 locals {
+  transaction_approval_policy_service_compose = {
+    "compose" : {
+      "archive" : hpcr_tgz.transaction_approval_policy_service_workload.rendered
+    }
+  }
+  transaction_approval_policy_service_workload = merge(local.workload_template, local.transaction_approval_policy_service_compose)
   # contract in clear text
   transaction_approval_policy_service_contract = yamlencode({
     "env" : local.env,
-    "workload" : {
-      "type" : "workload",
-      "compose" : {
-        "archive" : hpcr_tgz.transaction_approval_policy_service_workload.rendered
-      },
-      "auths": local.auths,
-      "images": local.images
-    }
+    "workload" : local.transaction_approval_policy_service_workload
   })
 }
 

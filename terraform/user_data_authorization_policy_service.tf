@@ -5,17 +5,16 @@ resource "hpcr_tgz" "authorization_policy_service_workload" {
 }
 
 locals {
+  authorization_policy_service_compose = {
+    "compose" : {
+      "archive" : hpcr_tgz.authorization_policy_service_workload.rendered
+    }
+  }
+  authorization_policy_service_workload = merge(local.workload_template, local.authorization_policy_service_compose)
   # contract in clear text
   authorization_policy_service_contract = yamlencode({
     "env" : local.env,
-    "workload" : {
-      "type" : "workload",
-      "compose" : {
-        "archive" : hpcr_tgz.authorization_policy_service_workload.rendered
-      },
-      "auths": local.auths,
-      "images": local.images
-    }
+    "workload" : local.authorization_policy_service_workload
   })
 }
 

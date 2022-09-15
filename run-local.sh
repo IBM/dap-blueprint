@@ -24,50 +24,42 @@ pushd terraform > /dev/null
 popd > /dev/null
 
 if [ ${SERVICE} == RHSSO ]; then
-    ### RHSSO ###
     cp .env.local terraform/rhsso/.env
     pushd terraform/rhsso > /dev/null
     docker-compose down
     docker-compose up -d
     popd > /dev/null
 elif [ ${SERVICE} == TP ]; then
-    ### RHSSO ###
     cp .env.local terraform/transaction_proposer/.env
     pushd terraform/transaction_proposer > /dev/null
     docker-compose down
     docker-compose up -d
     popd > /dev/null
 elif [ ${SERVICE} == AP ]; then
-    ### RHSSO ###
     cp .env.local terraform/authorization_policy_service/.env
     pushd terraform/authorization_policy_service > /dev/null
     docker-compose down
     docker-compose up -d
     popd > /dev/null
 elif [ ${SERVICE} == FDP ]; then
-    ### RHSSO ###
     cp .env.local terraform/fraud_detection_policy_service/.env
     pushd terraform/fraud_detection_policy_service > /dev/null
     docker-compose down
     docker-compose up -d
     popd > /dev/null
 elif [ ${SERVICE} == TAP ]; then
-    ### RHSSO ###
     cp .env.local terraform/transaction_approval_policy_service/.env
     pushd terraform/transaction_approval_policy_service > /dev/null
     docker-compose down
     docker-compose up -d
     popd > /dev/null
 elif [ ${SERVICE} == SS ]; then
-    ### RHSSO ###
     cp .env.local terraform/signing_service/.env
     pushd terraform/signing_service > /dev/null
     docker-compose down
     docker-compose up -d
     popd > /dev/null
 else
-    ./stop-gen2-local.sh
-
     WORKLOADS="signing_service transaction_proposer authorization_policy_service fraud_detection_policy_service transaction_approval_policy_service"
     for WORKLOAD in ${WORKLOADS}
     do

@@ -5,17 +5,16 @@ resource "hpcr_tgz" "transaction_proposer_workload" {
 }
 
 locals {
+  transaction_proposer_compose = {
+    "compose" : {
+      "archive" : hpcr_tgz.transaction_proposer_workload.rendered
+    }
+  }
+  transaction_proposer_workload = merge(local.workload_template, local.transaction_proposer_compose)
   # contract in clear text
   transaction_proposer_contract = yamlencode({
     "env" : local.env,
-    "workload" : {
-      "type" : "workload",
-      "compose" : {
-        "archive" : hpcr_tgz.transaction_proposer_workload.rendered
-      },
-      "auths": local.auths,
-      "images": local.images
-    }
+    "workload" : local.transaction_proposer_workload
   })
 }
 

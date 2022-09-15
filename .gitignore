@@ -2,7 +2,7 @@
 .env.build
 .env.tf
 .env.local
-*.log
+*.log*
 build-time-keys
 .terraform*
 terraform.tfstate*

@@ -6,6 +6,7 @@ DEPLOY=${3:-true}
 
 source ../.env
 export $(cat .env.tf | grep -v ^#)
+SSH_PUBKEY=`cat ${SSH_PUBKEY_PATH}`
 export TF_VAR_SSH_PUBKEY="${SSH_PUBKEY}"
 
 ./gen_compose.sh
@@ -40,6 +41,7 @@ if [[ ${DESTROY} == true ]]; then
     terraform destroy ${TARGETS}
 fi
 
+TARGETS="${TARGETS} -target ibm_is_security_group_rule.dap_outbound -target ibm_is_security_group_rule.dap_inbound"
 if [[ ${DEPLOY} == true ]]; then
     echo Deploying ${TARGETS}
     terraform apply ${TARGETS}

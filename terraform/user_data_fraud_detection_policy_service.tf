@@ -5,17 +5,16 @@ resource "hpcr_tgz" "fraud_detection_policy_service_workload" {
 }
 
 locals {
+  fraud_detection_policy_service_compose = {
+    "compose" : {
+      "archive" : hpcr_tgz.fraud_detection_policy_service_workload.rendered
+    }
+  }
+  fraud_detection_policy_service_workload = merge(local.workload_template, local.fraud_detection_policy_service_compose)
   # contract in clear text
   fraud_detection_policy_service_contract = yamlencode({
     "env" : local.env,
-    "workload" : {
-      "type" : "workload",
-      "compose" : {
-        "archive" : hpcr_tgz.fraud_detection_policy_service_workload.rendered
-      },
-      "auths": local.auths,
-      "images": local.images
-    }
+    "workload" : local.fraud_detection_policy_service_workload
   })
 }
 

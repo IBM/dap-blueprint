@@ -127,6 +127,8 @@ ENV ELECTRUM_USER=${ELECTRUM_USER} \
     ELECTRUM_PASSWORD=${ELECTRUM_PASSWORD} \
     ELECTRUM_DATA=${ELECTRUM_DATA}
 
+ARG BUILD=1
+
 ### In production, a private key must not be displayed. ###
 ARG DAP_ROOT_DIR=/git/dap-blueprint
 ARG BUILD_TIME_SECRET
