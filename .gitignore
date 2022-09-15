@@ -8,3 +8,5 @@ build-time-keys
 terraform.tfstate*
 __pycache__
 credentials.env
+.dbaas*
+.dap*
