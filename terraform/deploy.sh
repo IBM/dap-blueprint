@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 SERVICE=${1:-all}
 DESTROY=${2:-true}
 DEPLOY=${3:-true}

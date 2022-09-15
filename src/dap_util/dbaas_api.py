@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import os, argparse, json, copy
 from pprint import pprint
 from urllib import request

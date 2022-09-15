@@ -1,3 +1,7 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # construct the VSI
 resource "ibm_is_instance" "rhsso_vsi" {
   name    = format("%s-rhsso-vsi", var.PREFIX)

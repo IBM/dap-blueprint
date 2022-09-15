@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import json, uuid, time, os
 from polling_service import PollingService
 import dbaas, dap_hpcs, dap_crypto, dap_cos, dap_consts, hpcs_util

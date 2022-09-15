@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import argparse, json, os, argon2, hmac, hashlib
 from posix import environ
 from Crypto.PublicKey import RSA

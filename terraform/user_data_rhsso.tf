@@ -1,3 +1,7 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # archive of the folder containing docker-compose file. This folder could create additional resources such as files 
 # to be mounted into containers, environment files etc. This is why all of these files get bundled in a tgz file (base64 encoded)
 resource "hpcr_tgz" "rhsso_workload" {

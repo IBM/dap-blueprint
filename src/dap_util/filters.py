@@ -1,14 +1,8 @@
+# Copyright IBM Corp. All Rights Reserved.
 #
-# Licensed Materials - Property of IBM
-#
-# 5737-I09
-#
-# Copyright IBM Corp. 2019 All Rights Reserved.
-# US Government Users Restricted Rights - Use, duplication or
-# disclosure restricted by GSA ADP Schedule Contract with IBM Corp
-#
-import logging, re
+# SPDX-License-Identifier: Apache-2.0
 
+import logging, re
 
 class JsonFilter(logging.Filter):
 

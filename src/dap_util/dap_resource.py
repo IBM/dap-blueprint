@@ -1,3 +1,7 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import os, json, secrets, string, time
 from pprint import pprint
 import dbaas, dap_crypto, dap_cos, dap_consts, dap_hpcs, dbaas_api

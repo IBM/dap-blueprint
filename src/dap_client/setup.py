@@ -1,3 +1,7 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from setuptools import setup
 from setuptools import find_packages
 

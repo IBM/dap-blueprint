@@ -1,3 +1,7 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 service = None
 reboot = False
 flask_root_path = None

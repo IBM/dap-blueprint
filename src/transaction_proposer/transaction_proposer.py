@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import json, os
 from dap_flask.app import app, db, api
 from dap_flask.user import User

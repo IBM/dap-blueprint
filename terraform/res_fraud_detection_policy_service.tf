@@ -1,3 +1,7 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # construct the VSI
 resource "ibm_is_instance" "fraud_detection_policy_service_vsi" {
   name    = format("%s-fdp-vsi", var.PREFIX)

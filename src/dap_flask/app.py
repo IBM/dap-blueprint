@@ -1,3 +1,7 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from dap_util.dap_resource import DAPDBaaSResource
 import os, json, socket, dap_crypto, dap_cos, time
 from pprint import pprint

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 DAP_REBOOT=${1}
 DOCKER_NETWORK_EXTERNAL=${2}
 DOCKER_BUILD_LOG=${3}

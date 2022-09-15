@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from ssl import ALERT_DESCRIPTION_BAD_CERTIFICATE_STATUS_RESPONSE
 from ibm_botocore.client import Config, ClientError
 from pprint import pprint

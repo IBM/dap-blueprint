@@ -1,3 +1,7 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from pprint import pprint
 from dap_client import cleanup_txqueue
 from flask import request, abort

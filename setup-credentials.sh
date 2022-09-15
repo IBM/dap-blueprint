@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # This script is assumed to be run by a workload provider. A public
 # key is assumed to be stored in keys/public.pem which is generated to
 # build an image before running this script.

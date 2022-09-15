@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 export $(cat .env.build | grep -v ^#)
 
 unset ARGS
