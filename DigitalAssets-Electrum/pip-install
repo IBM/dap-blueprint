@@ -1,0 +1,1 @@
+sudo pip3 install dnspython pyaes ecdsa qrcode aiorpcx aiohttp aiohttp_socks pycryptodomex bitstring jsonrpcclient jsonrpcserver

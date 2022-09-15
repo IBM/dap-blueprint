@@ -1,0 +1,10 @@
+.env
+.env.build
+.env.tf
+.env.local
+*.log
+build-time-keys
+.terraform*
+terraform.tfstate*
+__pycache__
+credentials.env
