@@ -1,0 +1,987 @@
+{
+    "swagger": "2.0",
+    "basePath": "/",
+    "paths": {
+        "/admin/createseed": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AdminCreateSeedResponse"
+                        }
+                    }
+                },
+                "description": "This API requests the blueprint to create a new master seed, which is generated using HPCS and is stored internally in such a way that admins cannot extract or use to make blockchain transactions. The API returns a seed id, which is unique in the blueprint instance.",
+                "operationId": "post_admin_create_seed",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/AdminCreateSeedRequest"
+                        }
+                    }
+                ],
+                "tags": [
+                    "admin"
+                ]
+            }
+        },
+        "/admin/dbs/txqueue/cleanup": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/CleanupTxqueue"
+                        }
+                    }
+                },
+                "description": "Update the password for a DBaaS instance (admin-only API)",
+                "operationId": "post_cleanup_txqueue",
+                "tags": [
+                    "admin"
+                ]
+            }
+        },
+        "/admin/dbs/{name}": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "name",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateDBPasswordResponse"
+                        }
+                    }
+                },
+                "description": "Update the password for a DBaaS instance (admin-only API)",
+                "operationId": "post_update_db_password",
+                "tags": [
+                    "admin"
+                ]
+            }
+        },
+        "/admin/service/{serviceid}": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "serviceid",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/QueryStatusResponse"
+                        }
+                    }
+                },
+                "description": "Query service status (admin-only API)",
+                "operationId": "get_query_service_status",
+                "tags": [
+                    "admin"
+                ]
+            }
+        },
+        "/admin/updatepskeys/{serviceid}": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "serviceid",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/UpdatePSKeysResponse"
+                        }
+                    }
+                },
+                "description": "Update a  signing keypair in a policy service (admin-only API)",
+                "operationId": "post_update_ps_keys",
+                "tags": [
+                    "admin"
+                ]
+            }
+        },
+        "/admin/updatesskeys": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateSSKeysResponse"
+                        }
+                    }
+                },
+                "description": "Update encryption keys in signing service (admin-only API)",
+                "operationId": "post_update_ss_keys",
+                "tags": [
+                    "admin"
+                ]
+            }
+        },
+        "/auth/approver": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "post_approver_role",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/login": {
+            "get": {
+                "responses": {
+                    "400": {
+                        "description": "Fail",
+                        "schema": {
+                            "$ref": "#/definitions/LoginFailResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/LoginResponse"
+                        }
+                    }
+                },
+                "description": "A user obtains a bearer token through Red Hat Single Sign-On.",
+                "operationId": "get_login",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/logout": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/LogoutResponse"
+                        }
+                    }
+                },
+                "operationId": "get_logout",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/user": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "post_user_role",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/seeds/create": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/CreateSeedResponse"
+                        }
+                    }
+                },
+                "description": "This API requests the blueprint to create a new master seed, which is generated using HPCS and is stored internally in such a way that admins cannot extract or use to make blockchain transactions. The API returns a seed id, which is unique in the blueprint instance.",
+                "operationId": "post_transaction_proposer_seeds_create",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/CreateSeedRequest"
+                        }
+                    }
+                ],
+                "tags": [
+                    "seeds"
+                ]
+            }
+        },
+        "/seeds/{seedid}": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "seedid",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/DeleteSeedResponse"
+                        }
+                    }
+                },
+                "description": "This API requests the blueprint to delete a seed.",
+                "operationId": "delete_transaction_proposer_seeds",
+                "tags": [
+                    "seeds"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/QuerySeedResponse"
+                        }
+                    }
+                },
+                "description": "This API queries if a seed exists in the blueprint instance or not.",
+                "operationId": "get_transaction_proposer_seeds",
+                "tags": [
+                    "seeds"
+                ]
+            }
+        },
+        "/seeds/{seedid}/pubkeys/{bip32path}": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "seedid",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "bip32path",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/DerivePubkeyResponse"
+                        }
+                    }
+                },
+                "description": "This API requests the blueprint to derive a public key for a seed and a bip32 derivation path. bip32path is a URL-encoded string from a path string like m/0/0/0.",
+                "operationId": "post_transaction_proposer_seeds_derive",
+                "tags": [
+                    "seeds"
+                ]
+            }
+        },
+        "/seeds/{seedid}/sign": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "seedid",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/SignResultResponse"
+                        }
+                    }
+                },
+                "description": "This API combines signing request and result APIs.",
+                "operationId": "post_transaction_proposer_sign",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/SingRequest"
+                        }
+                    }
+                ],
+                "tags": [
+                    "seeds"
+                ]
+            }
+        },
+        "/seeds/{seedid}/sign/request": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "seedid",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/SignResponse"
+                        }
+                    }
+                },
+                "description": "This API sends a request to sign a set of hash values to be added in a blockchain transaction. It takes an array of inputs, where each element has a bip32 path and a hash value to be signed. For each element in the inputs, the signing service in this blueprint derives a private key from the seed specified by the seed id using the bip32 path, and signs the hash value. This API also takes a raw pre-sign transaction string. The blueprint parses the string to extract transaction parameters (a set of destination and source addresses, and an amount for each address), which a policy service uses to approve or reject the transaction. The blueprint also computes each hash value from the string to validate the ones in the API parameter. If the hash value computed from the string doesn't match, the transaction is rejected. Since the signing process can take a long time (e.g., a few days) with human approvals, another API (/seeds/<seedid>/sign/result) needs to be called to retrieve signatures.",
+                "operationId": "post_transaction_proposer_sign_request",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/SingRequest"
+                        }
+                    }
+                ],
+                "tags": [
+                    "seeds"
+                ]
+            }
+        },
+        "/seeds/{seedid}/sign/result": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "seedid",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "401": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/SignResultResponse"
+                        }
+                    }
+                },
+                "description": "This API retrives a signing result, which includes an array of signatures from the signing service, for a signing request made by a signing request API (/seeds/<seedid>/sign/request). The frontend (a caller of this API) is supposed to add signatures from this API response to a raw pre-sign transaction string before broadcasting it to a blockchain network (e.g. bitcoin network).",
+                "operationId": "post_transaction_proposer_sign_result",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/SingResultRequest"
+                        }
+                    }
+                ],
+                "tags": [
+                    "seeds"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "API",
+        "version": "1.0"
+    },
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "tags": [
+        {
+            "name": "auth",
+            "description": "Authentication APIs"
+        },
+        {
+            "name": "seeds",
+            "description": "Signing key management APIs"
+        },
+        {
+            "name": "admin",
+            "description": "Admin APIs"
+        }
+    ],
+    "definitions": {
+        "LoginFailResponse": {
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "error message"
+                }
+            },
+            "type": "object"
+        },
+        "LoginResponse": {
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "description": "api access token"
+                },
+                "session": {
+                    "type": "string",
+                    "description": "login session"
+                },
+                "oidc_id_token": {
+                    "type": "string",
+                    "description": "oidc id token"
+                }
+            },
+            "type": "object"
+        },
+        "LogoutResponse": {
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "logout message"
+                }
+            },
+            "type": "object"
+        },
+        "CreateSeedRequest": {
+            "properties": {
+                "pubkeys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PolicyServicePubkey"
+                    }
+                },
+                "hmacs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PolicyServiceHMAC"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "PolicyServicePubkey": {
+            "properties": {
+                "<serviceid>": {
+                    "type": "string",
+                    "description": "public key"
+                }
+            },
+            "type": "object"
+        },
+        "PolicyServiceHMAC": {
+            "properties": {
+                "<serviceid>": {
+                    "type": "string",
+                    "description": "HMAC of a public key"
+                }
+            },
+            "type": "object"
+        },
+        "AuthorizationFailureResponse": {
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "description": "error type"
+                },
+                "error_description": {
+                    "type": "string",
+                    "description": "error description"
+                }
+            },
+            "type": "object"
+        },
+        "CreateSeedResponse": {
+            "properties": {
+                "seedid": {
+                    "type": "string",
+                    "description": "seed id"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "status message"
+                }
+            },
+            "type": "object"
+        },
+        "DeleteSeedResponse": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "status message"
+                }
+            },
+            "type": "object"
+        },
+        "QuerySeedResponse": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "status message"
+                }
+            },
+            "type": "object"
+        },
+        "DerivePubkeyResponse": {
+            "properties": {
+                "pubkey": {
+                    "type": "string",
+                    "description": "public key"
+                },
+                "chaincode": {
+                    "type": "string",
+                    "description": "chain code"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "status message"
+                }
+            },
+            "type": "object"
+        },
+        "SingRequest": {
+            "properties": {
+                "transaction or invoice": {
+                    "type": "string",
+                    "description": "pre-sign raw transaction or invoice in hexadecimal"
+                },
+                "inputs": {
+                    "type": "array",
+                    "description": "hash value to be signed and corresponding derivation path",
+                    "items": {
+                        "$ref": "#/definitions/TransactionInput"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "TransactionInput": {
+            "properties": {
+                "bip32path": {
+                    "type": "string",
+                    "description": "bip32 derivation path (e.g., m/0/0/0)"
+                },
+                "hash": {
+                    "type": "string",
+                    "description": "hash"
+                }
+            },
+            "type": "object"
+        },
+        "SignResponse": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "status message"
+                }
+            },
+            "type": "object"
+        },
+        "SingResultRequest": {
+            "properties": {
+                "transaction": {
+                    "type": "string",
+                    "description": "raw pre-sign transaction string in hexadecimal"
+                }
+            },
+            "type": "object"
+        },
+        "SignResultResponse": {
+            "properties": {
+                "signatures": {
+                    "type": "array",
+                    "description": "signatures for transaction inputs",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "description": "status message"
+                }
+            },
+            "type": "object"
+        },
+        "QueryStatusResponse": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "status of a service"
+                },
+                "pubkey": {
+                    "type": "string",
+                    "description": "public key in hex from a service"
+                },
+                "pubkey_hmac": {
+                    "type": "string",
+                    "description": "hmac for public key"
+                }
+            },
+            "type": "object"
+        },
+        "UpdateSSKeysResponse": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "ok or fail"
+                }
+            },
+            "type": "object"
+        },
+        "UpdatePSKeysResponse": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "ok or fail"
+                }
+            },
+            "type": "object"
+        },
+        "UpdateDBPasswordResponse": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "ok or fail"
+                }
+            },
+            "type": "object"
+        },
+        "AdminCreateSeedRequest": {
+            "properties": {
+                "seed": {
+                    "type": "string",
+                    "description": "seed"
+                },
+                "userid": {
+                    "type": "string",
+                    "description": "user id"
+                }
+            },
+            "type": "object"
+        },
+        "AdminCreateSeedResponse": {
+            "properties": {
+                "seedid": {
+                    "type": "string",
+                    "description": "seed id"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "status message"
+                }
+            },
+            "type": "object"
+        },
+        "CleanupTxqueue": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "ok or fail"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "responses": {
+        "ParseError": {
+            "description": "When a mask can't be parsed"
+        },
+        "MaskError": {
+            "description": "When any error occurs on mask"
+        }
+    }
+}

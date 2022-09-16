@@ -1,0 +1,478 @@
+{
+    "swagger": "2.0",
+    "basePath": "/",
+    "paths": {
+        "/admin/approval": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "422": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/CreateApprovalResponse"
+                        }
+                    }
+                },
+                "description": "Create an approval request (admin-only API)",
+                "operationId": "post_create_approval",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/CreateApprovalRequest"
+                        }
+                    }
+                ],
+                "tags": [
+                    "admin"
+                ]
+            }
+        },
+        "/admin/approval/{process_instance_id}/{approved}": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "process_instance_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "approved",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "422": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/CreateApprovalResponse"
+                        }
+                    }
+                },
+                "description": "End an approval process (admin-only API)",
+                "operationId": "patch_end_approval",
+                "tags": [
+                    "admin"
+                ]
+            }
+        },
+        "/admin/dbs/{name}": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "name",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "responses": {
+                    "422": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateDBPasswordResponse"
+                        }
+                    }
+                },
+                "description": "Update the password for a DBaaS instance (admin-only API)",
+                "operationId": "post_update_db_password",
+                "tags": [
+                    "admin"
+                ]
+            }
+        },
+        "/auth/login": {
+            "get": {
+                "responses": {
+                    "400": {
+                        "description": "Fail",
+                        "schema": {
+                            "$ref": "#/definitions/LoginFailResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/LoginResponse"
+                        }
+                    }
+                },
+                "description": "A user obtains a bearer token through Red Hat Single Sign-On.",
+                "operationId": "get_login",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/logout": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/LogoutResponse"
+                        }
+                    }
+                },
+                "operationId": "get_logout",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/transactions/{process_instance_id}": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "process_instance_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "422": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/TransactionDetailResponse"
+                        }
+                    }
+                },
+                "description": "An approver obtains the user id of the owner of the master seed for transaction inputs and the psbt in a json format. The policy service will return an error if the transaction is not being assigned to the approver.",
+                "operationId": "get_transaction_details",
+                "tags": [
+                    "transactions"
+                ]
+            }
+        },
+        "/users/{userid}/transactions/hours/{hours}": {
+            "parameters": [
+                {
+                    "name": "Authorization",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "bearer token for api access"
+                },
+                {
+                    "name": "Cookie",
+                    "in": "header",
+                    "type": "string",
+                    "required": true,
+                    "description": "rhsso session and oidc_id_token"
+                },
+                {
+                    "name": "userid",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "hours",
+                    "in": "path",
+                    "required": true,
+                    "type": "integer"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "422": {
+                        "description": "API token authorization faulure",
+                        "schema": {
+                            "$ref": "#/definitions/AuthorizationFailureResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/UserTransactionsResponse"
+                        }
+                    }
+                },
+                "description": "An approver obtains a list of all transactions within a specified hours with inputs from a seed owned by a specified user. An approver can check the recent history of transactions from the user.",
+                "operationId": "get_user_transactions",
+                "tags": [
+                    "users"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "API",
+        "version": "1.0"
+    },
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "tags": [
+        {
+            "name": "auth",
+            "description": "Authentication APIs"
+        },
+        {
+            "name": "transactions",
+            "description": "Approver APIs to obtain the transaction information"
+        },
+        {
+            "name": "users",
+            "description": "Approver APIs to obtain the user information"
+        },
+        {
+            "name": "admin",
+            "description": "Admin APIs"
+        }
+    ],
+    "definitions": {
+        "LoginFailResponse": {
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "error message"
+                }
+            },
+            "type": "object"
+        },
+        "LoginResponse": {
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "description": "api access token"
+                },
+                "session": {
+                    "type": "string",
+                    "description": "login session"
+                },
+                "oidc_id_token": {
+                    "type": "string",
+                    "description": "oidc id token"
+                }
+            },
+            "type": "object"
+        },
+        "LogoutResponse": {
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "logout message"
+                }
+            },
+            "type": "object"
+        },
+        "AuthorizationFailureResponse": {
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "description": "error type"
+                },
+                "error_description": {
+                    "type": "string",
+                    "description": "error description"
+                }
+            },
+            "type": "object"
+        },
+        "TransactionDetailResponse": {
+            "properties": {
+                "userid": {
+                    "type": "string",
+                    "description": "User ID initiating this transaction"
+                },
+                "amount": {
+                    "type": "number",
+                    "description": "Amount to be sent"
+                },
+                "daily_amount": {
+                    "type": "number",
+                    "description": "Total amount sent and to be sent with 24 hours"
+                },
+                "psbt": {
+                    "type": "string",
+                    "description": "Deserialized transaction"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "status message"
+                }
+            },
+            "type": "object"
+        },
+        "UserTransactionsResponse": {
+            "properties": {
+                "transactions": {
+                    "type": "array",
+                    "description": "list of transactions",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "description": "status message"
+                }
+            },
+            "type": "object"
+        },
+        "CreateApprovalRequest": {
+            "properties": {
+                "userid": {
+                    "type": "string"
+                },
+                "seedid": {
+                    "type": "string"
+                },
+                "psbt": {
+                    "type": "string",
+                    "description": "PSBT transaction"
+                },
+                "amount": {
+                    "type": "number",
+                    "description": "Total amount to be sent"
+                },
+                "daily_amount": {
+                    "type": "number",
+                    "description": "Total amount sent and to be sent in 24 hours"
+                },
+                "doc": {
+                    "type": "string",
+                    "description": "Original document to be approved as a JSON string"
+                }
+            },
+            "type": "object"
+        },
+        "CreateApprovalResponse": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "ok or fail"
+                },
+                "approved": {
+                    "type": "boolean",
+                    "description": "true or false"
+                }
+            },
+            "type": "object"
+        },
+        "UpdateDBPasswordResponse": {
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "description": "ok or fail"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "responses": {
+        "ParseError": {
+            "description": "When a mask can't be parsed"
+        },
+        "MaskError": {
+            "description": "When any error occurs on mask"
+        }
+    }
+}

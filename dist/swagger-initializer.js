@@ -5,8 +5,8 @@ window.onload = function() {
   window.ui = SwaggerUIBundle({
     //url: "https://petstore.swagger.io/v2/swagger.json",
     urls: [
-        {url: "transaction-proposer.json", name: "Transaction proposer"},
-        {url: "approval-server.json", name: "Transaction store"},
+        {url: "./dist/transaction-proposer.json", name: "Transaction proposer"},
+        {url: "./dist/approval-server.json", name: "Transaction store"},
     ],
     dom_id: '#swagger-ui',
     deepLinking: true,
