@@ -15,12 +15,12 @@ export TF_VAR_SSH_PUBKEY="${SSH_PUBKEY}"
 
 ./gen_compose.sh
 
-RHSSO_TARGETS="-target ibm_is_instance.rhsso_vsi -target ibm_is_floating_ip.rhsso_floating_ip -target local_file.rhsso_contract"
-TP_TARGETS="-target ibm_is_instance.transaction_proposer_vsi -target ibm_is_floating_ip.transaction_proposer_floating_ip -target local_file.transaction_proposer_contract"
-AP_TARGETS="-target ibm_is_instance.authorization_policy_service_vsi -target ibm_is_floating_ip.authorization_policy_service_floating_ip -target local_file.authorization_policy_service_contract"
-FDP_TARGETS="-target ibm_is_instance.fraud_detection_policy_service_vsi -target ibm_is_floating_ip.fraud_detection_policy_service_floating_ip -target local_file.fraud_detection_policy_service_contract"
-TAP_TARGETS="-target ibm_is_instance.transaction_approval_policy_service_vsi -target ibm_is_floating_ip.transaction_approval_policy_service_floating_ip -target local_file.transaction_approval_policy_service_contract"
-SS_TARGETS="-target ibm_is_instance.signing_service_vsi -target ibm_is_floating_ip.signing_service_floating_ip -target local_file.signing_service_contract"
+RHSSO_TARGETS="-target ibm_is_instance.rhsso_vsi -target ibm_is_floating_ip.rhsso_floating_ip"
+TP_TARGETS="-target ibm_is_instance.transaction_proposer_vsi -target ibm_is_floating_ip.transaction_proposer_floating_ip"
+AP_TARGETS="-target ibm_is_instance.authorization_policy_service_vsi -target ibm_is_floating_ip.authorization_policy_service_floating_ip"
+FDP_TARGETS="-target ibm_is_instance.fraud_detection_policy_service_vsi -target ibm_is_floating_ip.fraud_detection_policy_service_floating_ip"
+TAP_TARGETS="-target ibm_is_instance.transaction_approval_policy_service_vsi -target ibm_is_floating_ip.transaction_approval_policy_service_floating_ip"
+SS_TARGETS="-target ibm_is_instance.signing_service_vsi -target ibm_is_floating_ip.signing_service_floating_ip"
 
 unset TARGETS
 if [[ ${SERVICE} == RHSSO ]]; then

@@ -33,3 +33,8 @@ resource "local_file" "transaction_approval_policy_service_contract" {
   content  = local.transaction_approval_policy_service_contract
   filename = "transaction_approval_policy_service_contract.yml"
 }
+
+resource "local_file" "transaction_approval_policy_service_contract_encrypted" {
+  content  = hpcr_contract_encrypted.transaction_approval_policy_service_contract.rendered
+  filename = "transaction_approval_policy_service_contract_encrypted.yml"
+}

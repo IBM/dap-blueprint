@@ -33,3 +33,8 @@ resource "local_file" "transaction_proposer_contract" {
   content  = local.transaction_proposer_contract
   filename = "transaction_proposer_contract.yml"
 }
+
+resource "local_file" "transaction_proposer_contract_encrypted" {
+  content  = hpcr_contract_encrypted.transaction_proposer_contract.rendered
+  filename = "transaction_proposer_contract_encrypted.yml"
+}

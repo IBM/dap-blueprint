@@ -33,3 +33,8 @@ resource "local_file" "rhsso_contract" {
   content  = local.rhsso_contract
   filename = "rhsso_contract.yml"
 }
+
+resource "local_file" "rhsso_contract_encrypted" {
+  content  = hpcr_contract_encrypted.rhsso_contract.rendered
+  filename = "rhsso_contract_encrypted.yml"
+}

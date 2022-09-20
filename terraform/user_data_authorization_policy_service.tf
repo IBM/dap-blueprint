@@ -33,3 +33,8 @@ resource "local_file" "authorization_policy_service_contract" {
   content  = local.authorization_policy_service_contract
   filename = "authorization_policy_service_contract.yml"
 }
+
+resource "local_file" "authorization_policy_service_contract_encrypted" {
+  content  = hpcr_contract_encrypted.authorization_policy_service_contract.rendered
+  filename = "authorization_policy_service_contract_encrypted.yml"
+}

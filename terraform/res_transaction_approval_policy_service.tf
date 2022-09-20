@@ -13,7 +13,7 @@ resource "ibm_is_instance" "transaction_approval_policy_service_vsi" {
   zone    = "${var.REGION}-${var.ZONE}"
 
   # the user data field carries the encrypted contract, so all information visible at the hypervisor layer is encrypted
-  user_data = hpcr_contract_encrypted.transaction_approval_policy_service_contract.rendered
+  user_data = file("./transaction_approval_policy_service_contract_encrypted.yml")
 
   primary_network_interface {
     name            = "eth0"
