@@ -66,6 +66,14 @@ echo "Storing KIE_SECRET and KIE_EXECUTION_SERVER_SECRET in COS"
 ./kcadm.sh create users -r rhpam -s username=charlie -s enabled=true -s email=charlie@ibm.com
 ./kcadm.sh set-password -r rhpam --username charlie --new-password ${RHPAM_USER_PASSWORD}
 ./kcadm.sh add-roles --uusername charlie --rolename end-user -r rhpam
+# eve
+./kcadm.sh create users -r rhpam -s username=eve -s enabled=true -s email=eve@ibm.com
+./kcadm.sh set-password -r rhpam --username eve --new-password ${RHPAM_USER_PASSWORD}
+./kcadm.sh add-roles --uusername eve --rolename end-user -r rhpam
+# mallory
+./kcadm.sh create users -r rhpam -s username=mallory -s enabled=true -s email=mallory@ibm.com
+./kcadm.sh set-password -r rhpam --username mallory --new-password ${RHPAM_USER_PASSWORD}
+./kcadm.sh add-roles --uusername mallory --rolename end-user -r rhpam
 # aimee
 ./kcadm.sh create users -r rhpam -s username=aimee -s enabled=true -s email=aimee@ibm.com
 ./kcadm.sh set-password -r rhpam --username aimee --new-password ${RHPAM_APPROVER_PASSWORD}
