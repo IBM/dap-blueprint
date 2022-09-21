@@ -1,6 +1,6 @@
 from concurrent.futures import process
 from curses.ascii import isdigit
-import time, dap_client
+import time, dap_client, os
 from dap_util import electrum_client
 
 table = {}
@@ -46,7 +46,7 @@ class TransactionRecord:
             return res
 
         # Retry when a token is expired.
-        dap_client.login_kie(host=kie_host, port=kie_port, userid='admin', password='admin')
+        dap_client.login_kie(host=kie_host, port=kie_port, userid='admin', password=os.environ['RHPAM_ADMIN_PASSWORD'])
         if args is not None:
             return func(kie_host, kie_port, 'admin', *args)
         else:

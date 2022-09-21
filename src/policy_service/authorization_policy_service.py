@@ -41,7 +41,7 @@ class AuthorizationPolicyService(PollingService):
             return res
 
         # Retry when a token is expired.
-        dap_client.login(host='localhost', port=5001, userid='admin', password='admin')
+        dap_client.login(host='localhost', port=5001, userid='admin', password=os.environ['RHPAM_ADMIN_PASSWORD'])
         if args is not None:
             return func('localhost', 5001, 'admin', *args)
         else:
