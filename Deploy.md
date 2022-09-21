@@ -190,7 +190,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built following
     | RHPAM_USER_PASSWORD                          | Password for users that are registered to your RHPAM server. Currently, DAP Blueprint registers five users: alice, bob, charlie, eve, and mallory. This is a tentative setting for simplification because all of the users have the same password. In production, different passwords should be registered for each user. |
     | RHPAM_APPROVER_PASSWORD                      | Password for approvers that are registered to your RHPAM server. Currently, DAP Blueprint registers three approvers: aimee, jon, katy. This is a tentative setting for simplification because all of the approvers have the same password. In production, different passwords should be registered for each approver. |
     | TRANSACTION_PROPOSER_PORT                    | Port of your transaction proposer. |
-    | APPROVAL_SERVER_PORT                         | Port of your transaction store. |
+    | APPROVAL_SERVER_PORT                         | Port of your approval server. |
     | RHSSO_SSH_PORT                               | SSH port of your RHSSO container. This is only for test purpose. |
     | TRANSACTION_PROPOSER_SSH_PORT                | SSH port of your transaction proposer container. This is only for test purpose. |
     | AUTHORIZATION_POLICY_SERVICE_SSH_PORT        | SSH port of your authorization policy service container. This is only for test purpose. |
@@ -411,7 +411,7 @@ In this URL, you should see the QR code in the `Authenticator` section. Please s
 
 ## DAP CLI
 
-```dap_client.py``` under ```dap-blueprint/src/dap_client``` is a command-line interface (CLI) for REST APIs of a transaction proposer and a transaction store. It has two global options ```--host``` and ```--port``` to specify a host name (IP address) and a port number for the transaction proposer. For example, when the host name is ```transaction-proposer-host``` and the port number is ```5000```, please run ```./dap_client.py --host dap-host --port 5000 <command> <options>```.
+```dap_client.py``` under ```dap-blueprint/src/dap_client``` is a command-line interface (CLI) for REST APIs of a transaction proposer and an approval server. It has two global options ```--host``` and ```--port``` to specify a host name (IP address) and a port number for the transaction proposer. For example, when the host name is ```transaction-proposer-host``` and the port number is ```5000```, please run ```./dap_client.py --host dap-host --port 5000 <command> <options>```.
 
 ### CLI for [Transaction Proposer REST APIs](https://ibm.github.io/dap-blueprint/)
 
@@ -514,11 +514,11 @@ This is the list of approval requests assigned to you. If you open a task, you s
 
 ![](images/rhpam-3.png)
 
-In the `Details` tab, you can obtain `Process Instance Id` which can be used to query the transaction in detail through transaction store REST APIs described later.
+In the `Details` tab, you can obtain `Process Instance Id` which can be used to query the transaction in detail through approval server REST APIs described later.
 
 In the `Work` tab, you can start an approval process by clicking `Claim ==> Start`. After that you can edit the `Amount_approved` check box. After that, you can complete the approval process by clicking `Complete`.
 
-### CLI for [Transaction Store REST APIs](https://ibm.github.io/dap-blueprint/)
+### CLI for [Approval Server REST APIs](https://ibm.github.io/dap-blueprint/)
 
 #### Obtain a bearer token
 

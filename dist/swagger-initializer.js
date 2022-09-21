@@ -6,7 +6,7 @@ window.onload = function() {
     //url: "https://petstore.swagger.io/v2/swagger.json",
     urls: [
         {url: "./dist/transaction-proposer.json", name: "Transaction proposer"},
-        {url: "./dist/approval-server.json", name: "Transaction store"},
+        {url: "./dist/approval-server.json", name: "Approval server"},
     ],
     dom_id: '#swagger-ui',
     deepLinking: true,

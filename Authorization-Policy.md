@@ -106,5 +106,5 @@ An approver can get a list of approval requests being assigned to him/her from a
 
 ## REST API for Approvers
 
-When an approver wants to know the details of a transaction in an approval request, he/she can query the details to a transaction store by calling REST APIs with the process instance ID. For example he/sh can retrieve the details of the `pbst` in a json format, which include the outputs and inputs of the transaction. An approver can also get a list of transactions within the specified hours from the same user to examine the history of transactions. REST APIs for approvers can be found [here](https://ibm.github.io/dap-blueprint).
+When an approver wants to know the details of a transaction in an approval request, he/she can query the details to an approval server by calling REST APIs with a process instance ID. For example he/sh can retrieve the details of the `pbst` in a json format, which include the outputs and inputs of the transaction. An approver can also get a list of transactions within the specified hours from the same user to examine the history of transactions. REST APIs for approvers can be found [here](https://ibm.github.io/dap-blueprint).
 
