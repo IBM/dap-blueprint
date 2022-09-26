@@ -130,8 +130,7 @@ ARG ELECTRUM_DATA=/data
 ENV ELECTRUM_USER=${ELECTRUM_USER} \
     ELECTRUM_PASSWORD=${ELECTRUM_PASSWORD} \
     ELECTRUM_DATA=${ELECTRUM_DATA}
-
-ARG BUILD=1
+RUN mkdir -p ${ELECTRUM_DATA}/wallets
 
 ### In production, a private key must not be displayed. ###
 ARG DAP_ROOT_DIR=/git/dap-blueprint

@@ -37,15 +37,14 @@ def get_client_from_envs(instance):
     if instance == 'walletdb':
         hosts = os.environ['WALLETDB_HOSTS']
         password = os.environ['WALLETDB_PASSWORD']
-        replicaset = 'walletdb'
+        replicaset = os.environ['WALLETDB_REPLICASET']
     elif instance == 'txqueue':
         hosts = os.environ['TXQUEUE_HOSTS']
         password = os.environ['TXQUEUE_PASSWORD']
-        replicaset = 'txqueue'
+        replicaset = os.environ['TXQUEUE_REPLICASET']
     elif instance == 'test':
         hosts = os.environ['DBAAS_HOSTS']
         password = os.environ['DBAAS_PASSWORD']
-        replicaset = 'test'
     else:
         raise Exception('Unknown instance ' + instance)
     return get_client(

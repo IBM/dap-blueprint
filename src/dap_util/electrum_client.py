@@ -19,21 +19,12 @@ if 'ELECTRUM_USER' not in os.environ or 'ELECTRUM_PASSWORD' not in os.environ or
 
 ELECTRUM_USER = os.environ['ELECTRUM_USER']
 ELECTRUM_PASSWORD = os.environ['ELECTRUM_PASSWORD']
-ELECTRUM_DATA = os.environ['ELECTRUM_DATA']
-URL = 'http://127.0.0.1:7777'
+ELECTRUM_DATA = '/data'
 HEADERS = {
     'Content-Type': 'application/json'
 }
 
 WALLETS_DIR = ELECTRUM_DATA + '/wallets'
-if not os.path.exists(WALLETS_DIR):
-    os.mkdir(WALLETS_DIR)
-
-password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
-password_mgr.add_password(None, URL, ELECTRUM_USER, ELECTRUM_PASSWORD)
-handler = request.HTTPBasicAuthHandler(password_mgr)
-opener = request.build_opener(handler)
-request.install_opener(opener)
 
 def _print_request(req):
     print('-----------------------------')
@@ -46,16 +37,33 @@ def _print_request(req):
     pprint(req.data.decode('utf-8'))
     print()
 
-def _send_request(payload):
+def _send_request(payload, host, port):
+    URL = 'http://' + host + ':' + port
+
+    password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
+    password_mgr.add_password(None, URL, ELECTRUM_USER, ELECTRUM_PASSWORD)
+    handler = request.HTTPBasicAuthHandler(password_mgr)
+    opener = request.build_opener(handler)
+    request.install_opener(opener)
+
     req = request.Request(URL, json.dumps(payload).encode(), HEADERS)
     _print_request(req)
-    with request.urlopen(req) as res:
-        json_data = json.load(res)
-        print('-----------------------------')
-        print('Getting the following response')
-        pprint(json_data)
-        print()
-        return json_data
+    try:
+        with request.urlopen(req) as res:
+            json_data = json.load(res)
+            print('-----------------------------')
+            print('Getting the following response')
+            pprint(json_data)
+            print()
+            return json_data
+    except HTTPError as e:
+        err = e.read().decode('utf-8')
+        print('HTTP error: {}'.format(e.code))
+        print(err)
+        return err
+    except URLError as e:
+        print(str(e))
+        return str(e)
 
     return None
 
@@ -67,51 +75,49 @@ def _create_command(method, params):
         'params': params
     }
 
-def create_dap(userid, password, seedid, watch_only, host, port, seed_type, otp):
+def create_dap(userid, password, seedid, watch_only, seed_type, host='127.0.0.1', port='7777'):
     params = {
         'userid': userid,
         'password': password,
         'wallet_path': WALLETS_DIR + '/' + userid,
         'seedid': seedid,
         'watch_only': watch_only,
-        'host': host,
-        'port': port,
-        'seed_type': seed_type,
-        'otp': otp
+        'host': 'dap-host',
+        'port': '5000',
+        'seed_type': seed_type
     }
-    return _send_request(_create_command('create_dap', params))
+    return _send_request(_create_command('create_dap', params), host=host, port=port)
 
 def create_dap_(args):
-    return create_dap(args.userid, args.password, args.seedid, args.watch_only, args.host, args.port, args.seed_type, args.otp)
+    return create_dap(args.userid, args.password, args.seedid, args.watch_only, args.seed_type, args.host, args.port)
 
 def create_bip32hsm(args):
     params = {
         'password': args.password,
         'wallet_path': WALLETS_DIR + '/' + args.userid
     }
-    return _send_request(_create_command('create_bip32hsm', params))
+    return _send_request(_create_command('create_bip32hsm', params), host=args.host, port=args.port)
 
-def load_wallet(userid, otp):
+def load_wallet(userid, host='127.0.0.1', port='7777'):
     params = {
-        'wallet_path': WALLETS_DIR + '/' + userid,
-        'otp': otp
+        'wallet_path': WALLETS_DIR + '/' + userid
     }
-    return _send_request(_create_command('load_wallet', params))
+    return _send_request(_create_command('load_wallet', params), host=host, port=port)
 
 def load_wallet_(args):
-    return load_wallet(args.userid, args.otp)
+    return load_wallet(args.userid, args.host, args.port)
 
 def getbalance(args):
     params = {
         'wallet': WALLETS_DIR + '/' + args.userid
     }
-    return _send_request(_create_command('getbalance', params))
+    return _send_request(_create_command('getbalance', params), host=args.host, port=args.port)
 
 def getunusedaddress(args):
     params = {
         'wallet': WALLETS_DIR + '/' + args.userid
     }
-    return _send_request(_create_command('getunusedaddress', params))
+    return _send_request(_create_command('getunusedaddress', params), host=args.host, port=args.port)
 
 def payto(args):
     params = {
@@ -123,14 +129,14 @@ def payto(args):
         'psbthex': True
     }
 
-    json_data = _send_request(_create_command('payto', params))
+    json_data = _send_request(_create_command('payto', params), host=args.host, port=args.port)
     result = json_data['result']
     if args.broadcast == True and args.sync == True and args.unsigned == False and result['status'] == 'success':
         print('Broadcasting')
         broadcast_params = {
             'tx': result['transactionid']
         }
-        return _send_request(_create_command('broadcast', broadcast_params))
+        return _send_request(_create_command('broadcast', broadcast_params), host=args.host, port=args.port)
     else:
         print('No broadcasting')
         return json_data
@@ -141,14 +147,14 @@ def getsignedtx(args):
         'wallet': WALLETS_DIR + '/' + args.userid,
     }
 
-    json_data = _send_request(_create_command('getsignedtx', params))
+    json_data = _send_request(_create_command('getsignedtx', params), host=args.host, port=args.port)
     result = json_data['result']
     if args.broadcast == True and result['status'] == 'success':
         print('Broadcasting')
         broadcast_params = {
             'tx': result['transactionid']
         }
-        return _send_request(_create_command('broadcast', broadcast_params))
+        return _send_request(_create_command('broadcast', broadcast_params), host=args.host, port=args.port)
     else:
         print('No broadcasting')
         return json_data
@@ -158,109 +164,108 @@ def broadcast(args):
         'tx': args.tx,
     }
 
-    return _send_request(_create_command('broadcast', params))
+    return _send_request(_create_command('broadcast', params), host=args.host, port=args.port)
 
-def validatetx(tx, userid, inputs):
+def validatetx(tx, userid, inputs, host='127.0.0.1', port='7777'):
     params = {
         'tx': tx,
         'wallet': WALLETS_DIR + '/' + userid,
         'inputs': inputs,
     }
 
-    return _send_request(_create_command('validatetx', params))
+    return _send_request(_create_command('validatetx', params), host=host, port=port)
 
 def validatetx_(args):
     with open(args.inputs, mode='rt', encoding='utf-8') as file:
         inputs = json.load(file)
         pprint(inputs)
-        return validatetx(args.tx, args.userid, inputs)
+        return validatetx(args.tx, args.userid, inputs, args.host, args.port)
 
-def is_segwit(tx):
+def is_segwit(tx, host='127.0.0.1', port='7777'):
     params = {
         'tx': tx
     }
 
-    return _send_request(_create_command('is_segwit', params))
+    return _send_request(_create_command('is_segwit', params), host=host, port=port)
 
 def is_segwit_(args):
-    return is_segwit(args.tx)
+    return is_segwit(args.tx, args.host, args.port)
 
-def getamount(tx, userid):
+def getamount(tx, userid, host='127.0.0.1', port='7777'):
     params = {
         'tx': tx,
         'wallet': WALLETS_DIR + '/' + userid,
     }
 
-    return _send_request(_create_command('getamount', params))
+    return _send_request(_create_command('getamount', params), host=host, port=port)
 
 def getamount_(args):
-    return getamount(args.tx, args.userid)
+    return getamount(args.tx, args.userid, args.host, args.port)
 
-def getdailyamount(tx, userid):
+def getdailyamount(tx, userid, host='127.0.0.1', port='7777'):
     params = {
         'tx': tx,
         'wallet': WALLETS_DIR + '/' + userid,
     }
 
-    return _send_request(_create_command('getdailyamount', params))
+    return _send_request(_create_command('getdailyamount', params), host=host, port=port)
 
 def getdailyamount_(args):
-    return getdailyamount(args.tx, args.userid)
+    return getdailyamount(args.tx, args.userid, host=args.host, port=args.port)
 
-def gettransactions(hours, userid):
+def gettransactions(hours, userid, host='127.0.0.1', port='7777'):
     params = {
         'hours': hours,
         'wallet': WALLETS_DIR + '/' + userid,
     }
 
-    return _send_request(_create_command('gettransactions', params))
+    return _send_request(_create_command('gettransactions', params), host=host, port=port)
 
 def gettransactions_(args):
-    return gettransactions(args.hours, args.userid)
+    return gettransactions(args.hours, args.userid, args.host, args.port)
 
-def desrialize(tx):
+def desrialize(tx, host='127.0.0.1', port='7777'):
     params = {
         'tx': tx
     }
 
-    return _send_request(_create_command('deserialize', params))
+    return _send_request(_create_command('deserialize', params), host, port)
 
 def deserialize_(args):
-    return desrialize(args.tx)
+    return desrialize(args.tx, args.host, args.port)
 
-def load_or_create_dap(userid, seedid, tx):
-    loaded = load_wallet(userid=userid)
+def load_or_create_dap(userid, seedid, tx, host='127.0.0.1', port='7777'):
+    loaded = load_wallet(userid=userid, host=host, port=port)
     if not loaded['result']:
         print('Creating a wallet for {}'.format(userid))
         seed_type = 'standard'
         if is_segwit(tx)['result']:
             seed_type = 'segwit'
-        create_dap(userid=userid, password=None, seedid=seedid, watch_only=True, host='localhost', port=5000, seed_type=seed_type, otp=None)
-        loaded = load_wallet(userid=userid, otp=None)
+        create_dap(userid=userid, password=None, seedid=seedid, watch_only=True, seed_type=seed_type, host=host, port=port)
+        loaded = load_wallet(userid=userid)
         if not loaded['result']:
             return False
     return True
 
-def update_txqueue_client():
-    return _send_request(_create_command('update_txqueue_client', {}))
+def update_txqueue_client(host='127.0.0.1', port='7777'):
+    return _send_request(_create_command('update_txqueue_client', {}), host=host, port=port)
 
-def update_txqueue_client_():
-    return update_txqueue_client()
+def update_txqueue_client_(agrs):
+    return update_txqueue_client(args.host, args.port)
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(title='commands')
+    parser.add_argument('--host', default='127.0.0.1')
+    parser.add_argument('--port', default='7777')
 
     create_dap_parser = subparsers.add_parser('create_dap', help='Create a DAP wallet')
     create_dap_parser.add_argument('userid')
     create_dap_parser.add_argument('password')
     create_dap_parser.add_argument('--seedid', default=None)
     create_dap_parser.add_argument('--watch_only', action='store_true')
-    create_dap_parser.add_argument('--host', default='localhost')
-    create_dap_parser.add_argument('--port', default=5000)
     create_dap_parser.add_argument('--seed_type', default='standard')
-    create_dap_parser.add_argument('--otp', default=None)
     create_dap_parser.set_defaults(func=create_dap_)
 
     create_bip32hsm_parser = subparsers.add_parser('create_bip32hsm', help='Create a bip32hsm wallet')
@@ -270,7 +275,6 @@ if __name__ == '__main__':
 
     load_wallet_parser = subparsers.add_parser('load_wallet', help='Load a wallet')
     load_wallet_parser.add_argument('userid')
-    load_wallet_parser.add_argument('--otp', default=None)
     load_wallet_parser.set_defaults(func=load_wallet_)
 
     getbalance_parser = subparsers.add_parser('getbalance', help='Get balance')

@@ -228,6 +228,12 @@ variable "RHSSO_HOST" {
   default     = ""
 }
 
+variable "DAP_HOST" {
+  type        = string
+  description = "IP address of transaction proposer."
+  default     = ""
+}
+
 variable "TRANSACTION_PROPOSER_PORT" {
   type        = string
   description = "Transaction proposer port"

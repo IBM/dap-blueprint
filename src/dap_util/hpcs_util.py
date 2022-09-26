@@ -42,6 +42,27 @@ def GetPubkeyBytesFromSPKI(spki):
         print(e)
         return None
 
+def GetSPKIFromPubkeyBytes(public_key_bytes):
+
+    public_key_bytearray = bytearray(public_key_bytes)
+    public_key_bytearray[0:0] = b'\x00' # insert 0x00 in front of the public key bytearray
+    public_key_bytes = bytes(public_key_bytearray)
+
+    #print('public_key: ' + public_key_bytearray.hex())
+
+    encoder = asn1.Encoder()
+    encoder.start()
+    encoder.enter(asn1.Numbers.Sequence)
+    encoder.enter(asn1.Numbers.Sequence)
+    encoder.write('1.2.840.10045.2.1', asn1.Numbers.ObjectIdentifier) # id-ecPublicKey
+    encoder.write('1.3.132.0.10', asn1.Numbers.ObjectIdentifier)      # secp256k1
+    encoder.leave()
+    encoder.write(public_key_bytes, asn1.Numbers.BitString)
+    encoder.leave()
+    public_key_obj = encoder.output()
+
+    return public_key_obj
+
 class Channel:
 
     def __init__(self, credentials):
