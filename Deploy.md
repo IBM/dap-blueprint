@@ -2,16 +2,40 @@
 
 ## Contents
 
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Local Build](#local-build)
-- [Local Deployment](#local-deployment)
-- [Secure Build](#secure-build)
-- [Deployment of DAP Blueprint on IBM Cloud Hyper Protect Virtual Server for IBM Cloud VPC](#vpc-deploy)
-- [Host name aliasing in /etc/hosts](#hostname)
-- [Two-Factor Authentication](#2fa)
-- [How to use DAP CLI](#dap-cli)
-- [How to use Electrum frontend](#electrum)
+- [Digital Asset Platform Blueprint](#digital-asset-platform-blueprint)
+  - [Contents](#contents)
+  - [Overview](#overview)
+  - [Prerequisites](#prerequisites)
+  - [Local Build](#local-build)
+  - [Local Deployment](#local-deployment)
+  - [Secure Build](#secure-build)
+  - [Deployment of DAP Blueprint on IBM Cloud Hyper Protect Virtual Server for IBM Cloud VPC](#deployment-of-dap-blueprint-on-ibm-cloud-hyper-protect-virtual-server-for-ibm-cloud-vpc)
+  - [Host name aliasing in /etc/hosts](#host-name-aliasing-in-etchosts)
+  - [Two-Factor Authentication](#two-factor-authentication)
+  - [DAP CLI](#dap-cli)
+    - [CLI for Transaction Proposer REST APIs](#cli-for-transaction-proposer-rest-apis)
+      - [Obtain a bearer token](#obtain-a-bearer-token)
+      - [Obtain a bearer token with two-factor authentication](#obtain-a-bearer-token-with-two-factor-authentication)
+      - [Obtain public keys of policy services](#obtain-public-keys-of-policy-services)
+      - [Create a master seed](#create-a-master-seed)
+      - [Derive a public key](#derive-a-public-key)
+      - [Sign a transaction](#sign-a-transaction)
+    - [Approval process in Red Hat Process Automation Manager (RHPAM)](#approval-process-in-red-hat-process-automation-manager-rhpam)
+    - [CLI for Approval Server REST APIs](#cli-for-approval-server-rest-apis)
+      - [Obtain a bearer token](#obtain-a-bearer-token-1)
+      - [Obtain a bearer token with two-factor authentication](#obtain-a-bearer-token-with-two-factor-authentication-1)
+      - [Obtain the details of a transaction](#obtain-the-details-of-a-transaction)
+      - [Obtain transactions of a user within the specified hours](#obtain-transactions-of-a-user-within-the-specified-hours)
+  - [How to use Electrum frontend](#how-to-use-electrum-frontend)
+    - [Run an Electrum JSON RPC server for Bitcoin Testnet](#run-an-electrum-json-rpc-server-for-bitcoin-testnet)
+    - [Electrum CLI](#electrum-cli)
+      - [Cerate a wallet](#cerate-a-wallet)
+      - [Load a wallet](#load-a-wallet)
+      - [Get a un-used address of your wallet](#get-a-un-used-address-of-your-wallet)
+      - [Get your balance](#get-your-balance)
+      - [Create a transaction to send an amount of bitcoins](#create-a-transaction-to-send-an-amount-of-bitcoins)
+      - [Get a signed transaction](#get-a-signed-transaction)
+      - [Broadcast a signed transaction](#broadcast-a-signed-transaction)
 
 <a id="overview"></a>
 
@@ -138,7 +162,7 @@ This is a procedure to build a DAP Blueprint image in your laptop or Linux machi
 
 ## Local Deployment
 
-This is a procedure to deploy the DAP Blueprint image, which you built following the steps [here](#local-build)), in your local docker environment.
+This is a procedure to deploy the DAP Blueprint image, which you built in the steps [here](#local-build)), in your local docker environment. Although you need to deploy six services in total, some services have dependencies. So, please follow the steps below carefully.
 
 1. Copy an environment-variable file
    
@@ -152,6 +176,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built following
     | Environment Variable                         |Description                                                                 |
     | -------------------------------------------- | -------------------------------------------------------------------------- |
     | RHSSO_HOST                                   | IP address of your Red Hat Single Sign-On (RHSSO) server. This is known after deploying a RHSSO server. So, please set 127.0.0.1 at this time. |
+    | DAP_HOST                                     | IP address of your transaction proposer. This is known after deploying a RHSSO server. So, please set 127.0.0.1 at this time. |
     | IC_API_KEY                                   | IBM Cloud API key which you creatated at Prerequisites 2. |
     | REGION                                       | IBM Cloud region which you want to deploy your DAP Blueprint instances (e.g., jp-tok). This is not used for local deployment. |
     | ZONE                                         | IBM Cloud zone which you want to deploy your DAP Blueprint instances (e.g., 1). |
@@ -207,14 +232,36 @@ This is a procedure to deploy the DAP Blueprint image, which you built following
    # docker ps
    # docker inspect <Your RHSSO container name or ID>
    ```
-   After running the last command, you can see the information of your RHSSO container. At this time, you should be able to find `IPAddress` (e.g., `"IPAddress": "172.17.0.2",`). Please set the IP address to the `RHSSO_HOST` environment variable by editting the `.env` file.
+   After running the last command, you can see the information of your RHSSO container. At this time, you should be able to find `IPAddress` (e.g., `"IPAddress": "172.17.0.2",`). Please set the IP address to the `RHSSO_HOST` environment variable in your `.env` file.
 
-4. Run DAP Blueprint
+4. Run Signing Service
    
    ```
-   # ./run-local.sh all False docker-build.log
+   # ./run-local.sh SS False docker-build.log
    ```
-   This command creates five containers: transaction proposer, authorization policy service, fraud detection policy service, transaction approval policy service, signing service, and two HPDBaaS instances (e.g., dap-txqueue, dap-walletdb). The second argument of this script specifies if you want to boot all of the services from scratch or reboot them. When `False` is specified, all of the services are booted from scratch. When `True` is specified, all of the services are rebooted from the backup information stored in your COS instance. We recommend `reboot` (i.e., `True` option) after you create all of the service once to reduce the fee for IBM Cloud.
+   This command creates a container for signing service and two HPDBaaS instances (e.g., dap-txqueue, dap-walletdb). The second argument of this script specifies if you want to boot the service from scratch or reboot it. When `False` is specified, the signing service is booted from scratch. When `True` is specified, the signing service is rebooted from the backup information stored in your COS instance. We recommend `reboot` (i.e., `True` option) after you create the signing service once to reduce the fee for IBM Cloud.
+
+   When you reboot the signing service, you can skip this step.
+
+5. Run Transaction Proposer
+   
+   ```
+   # ./run-local.sh TP False docker-build.log
+   # docker inspect <Your transaction proposer container name or ID>
+   ```
+   After running the last command, you can see the information of your transaction proposer container. At this time, you should be able to find `IPAddress` (e.g., `"IPAddress": "172.17.0.3",`). Please set the IP address to the `DAP_HOST` environment variable in your `.env` file.
+
+6. Run Other Services
+   
+   ```
+   # ./run-local.sh AP False docker-build.log
+   # ./run-local.sh FDP False docker-build.log
+   # ./run-local.sh TAP False docker-build.log
+   ```
+   When you reboot these services and signing service, please simply run the following command.
+   ```
+   # ./run-local.sh
+   ```
 
 <a id="secure-build"></a>
 
@@ -275,6 +322,7 @@ This is a procedure to build a DAP Blueprint image on [Secure Build Server](http
          "SKIP_HPCS_VERIFY",
          "HPCS_INTERVAL",
          "RHSSO_HOST",
+         "DAP_HOST",
          "LOGDNA_INGESTION_KEY",
          "LOGDNA_INGESTION_HOSTNAME",
          "LOGDNA_API_HOSTNAME",
@@ -371,16 +419,48 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
    ```
    # ./create-contract.sh
    ```
-   This command re-creates encrypted contract files with a correct `RHSSO_HOST`. This is a limitation of the current implementation. We will enhance DAP Blueprint to skip this process.
+   This command re-creates encrypted contract files with a correct `RHSSO_HOST`.
 
    You can check if the deployment succeeds in your logging instance.
 
-2. Run other services of DAP Blueprint
+2. Run Signing Service
    
    ```
-   # ./run.sh all False docker-build.log
+   # ./run.sh SS False docker-build.log
    ```
-   This command create five virtual service instances on IBM Cloud VPC. You can check if the deployment succeeds in your logging instance.
+   This command deploys a signing service and two HPDBaaS instances (e.g., dap-txqueue, dap-walletdb). The second argument of this script specifies if you want to boot the service from scratch or reboot it. When `False` is specified, the signing service is booted from scratch. When `True` is specified, the signing service is rebooted from the backup information stored in your COS instance. We recommend `reboot` (i.e., `True` option) after you create the signing service once to reduce the fee for IBM Cloud.
+
+   You can skip this step when you reboot the signing service.
+
+3. Run Transaction Proposer
+   
+   ```
+   # ./run.sh TP False docker-build.log
+   ```
+   This script outputs an IP address of transaction proposer. The following is an example output.
+   ```
+   transaction_proposer_ip = "xxx.xxx.xxx.xxx"
+   ```
+   Please set this IP address to an environment variable `DAP_HOST` in the `.env` file and then run the following command.
+   ```
+   # ./create-contract.sh
+   ```
+   This command re-creates encrypted contract files with a correct `DAP_HOST`.
+
+4. Run Other Services
+   
+   ```
+   # ./run.sh AP False docker-build.log
+   # ./run.sh FDP False docker-build.log
+   # ./run.sh TAP False docker-build.log
+   ```
+   These commands deploy three services: authorization policy service, fraud detection policy service, and transaction approval policy service.
+
+   When you reboot these services and a signing service, please run the following command.
+   ```
+   # ./run.sh
+   ```
+   This command deploys four services: authorization policy service, fraud detection policy service, transaction approval policy service, and signing service.
 
 <a id="hostname"></a>
 
@@ -575,60 +655,32 @@ In the above transaction list, the first **n** transactions are waiting for your
 
 ## How to use Electrum frontend
 
-Our enhanced Electrum locates at ```dap-blueprint/DigitalAssets-Electrum```. It calls REST APIs of transaction proposer to create a master seed, derive a public key, and sign a transaction for bitcoin transactions. After signing a transaction, you can broadcast the signed transaction to a bitcoin network.
+Our enhanced Electrum is included in a dap-blueprint image. If you build a dap-blueprint image in the steps [here](#local-build), you can run the enhanced Electrum in your laptop as a frontend to DAP Blueprint. The enhanced Electrum calls REST APIs of transaction proposer to create a master seed, derive a public key, and sign a transaction for bitcoin transactions. After signing a transaction, you can broadcast the signed transaction to a bitcoin network.
 
 ### Run an Electrum JSON RPC server for Bitcoin Testnet
 
-1. Set the following environment variabls
-
-   ```
-   export ELECTRUM_DATA=<a directory to store your Electrum data>
-   export ELECTRUM_USER=electrum
-   export ELECTRUM_PASSWORD=passw0rd
-   ```
-
-2. Go to an Electrum directory
-
-   ```
-   cd dap-blueprint/DigitalAssets-Electrum
-   ```
-
-3. Run a script to start an Electrum JSON RPC server
-
-   ```
-   ./start_rpc_daemon.sh
-   ```
+```
+# cd dap-blueprint
+# cd ./run-electrum.sh
+```
+Note that you need to have `.env` file that you used to deploy dap-blueprint services under the dap-blueprint directory. Since the Electrum server accesses a transaction proposer, it needs to know the IP address and port of the transaction proposer, which should be set in the `.env` file.
 
 ### Electrum CLI
 
-```electrum_client.py``` under ```dap-blueprint/src/dap_util``` is a command line interface (CLI) to call JSON RPCs of our enhanced Electrum. Using the CLI allows you to perform the following operations.  ```electrum_client.py``` assumes that our enhanced Electrum locally (i.e., it tries to access ```localhost```). If you want to run the Electrum on another host, please edit ```electrum_client.py```.
+```electrum_client.py``` under ```dap-blueprint/src/dap_util``` is a command line interface (CLI) to call JSON RPCs of our enhanced Electrum. Using the CLI allows you to perform the following operations.
 
 #### Cerate a wallet
 
 ```
-./electrum_client.py create_dap <userid (alice, bob, or charlie)> <password> --host <host name of transaction proposer> --port <port number of transaction proposer>
+./electrum_client.py create_dap <userid (alice, bob, or charlie)> <password> 
 ```
-
-Note that the host and port options are used to access transaction proposer. They are not the host and port of Electrum. The host and port are stored in a wallet record under ```<ELECTRUM_DATA>/wallets```. If you change the host or port, please edit your wallet file.
 
 Currently, only three userids (alice, bob, and charlie) can be used with a password `passw0rd` (0 is zero). The password is used for authentication to transaction proposer. 
-
-When you enable two-factor authentication, you can add the following optional argument.
-
-```
---otp <one-time passcode>
-```
 
 #### Load a wallet
 
 ```
 ./electrum_client.py load_wallet <userid>
-```
-
-When you enable two-factor authentication, you can add the following optional argument.
-
-```
---otp <one-time passcode>
 ```
 
 #### Get a un-used address of your wallet
