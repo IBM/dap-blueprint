@@ -40,7 +40,7 @@ resource "ibm_is_security_group_rule" "dap_inbound" {
   direction = "inbound"
   remote    = "0.0.0.0/0"
   tcp {
-    port_min = 5000
+    port_min = 4000
     port_max = 10000
   }
 }

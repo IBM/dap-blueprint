@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import argparse, json, os, argon2, hmac, hashlib
+import argparse, json, os, hmac, hashlib
 from posix import environ
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
@@ -121,6 +121,8 @@ def derive_common_keys(old=False):
         deploy_time_secret = os.environ['DEPLOY_TIME_SECRET']
     if not deploy_time_secret:
         raise Exception('DEPLOY_TIME_SECRET environment variable is not set')
+
+    import argon2
 
     salt = None
     if 'ARGON2_SALT' in os.environ:
