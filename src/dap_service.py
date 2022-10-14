@@ -52,7 +52,17 @@ if __name__ == '__main__':
         from policy_service import transaction_approval_policy_service
         transaction_approval_policy_service.run(reboot)
     elif args.service == dap_consts.SIGNING_SERVICE_SHORT_NAME:
-        from signing_service import signing_service
-        signing_service.run(reboot)
+        is_server = False
+        if 'SIGNING_SERVICE_SERVER' in os.environ and os.environ['SIGNING_SERVICE_SERVER'] == 'true':
+            is_server = True
+
+        if is_server:
+            dap_consts.service = dap_consts.SIGNING_SERVICE
+            dap_consts.flask_root_path = os.environ['DAP_ROOT_DIR'] + '/signing_service'
+            from signing_service import signing_service_server
+            signing_service_server.run(args.dump)
+        else:
+            from signing_service import signing_service
+            signing_service.run(reboot)
     else:
         print('Unknown service ' + args.service)

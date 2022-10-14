@@ -9,6 +9,7 @@ from ssl import ALERT_DESCRIPTION_BAD_CERTIFICATE_STATUS_RESPONSE
 import dbaas, dap_hpcs, dap_crypto, dap_consts
 from dap_resource import DAPCommonResource, DAPSSResource
 from pymongo.errors import PyMongoError
+import distutils.util
 
 class PollingService:
 
@@ -24,11 +25,11 @@ class PollingService:
 
         self.skip_verification = False
         if 'SKIP_VERIFICATION' in os.environ and os.environ['SKIP_VERIFICATION']:
-            self.skip_verification = True
+            self.skip_verification = bool(distutils.util.strtobool(os.environ['SKIP_VERIFICATION']))
 
         self.__skip_hpcs_verify = False
         if 'SKIP_HPCS_VERIFY' in os.environ and os.environ['SKIP_HPCS_VERIFY']:
-            self.__skip_hpcs_verify = True
+            self.__skip_hpcs_verify = bool(distutils.util.strtobool(os.environ['SKIP_HPCS_VERIFY']))
 
     def _post_ready_status(self, with_pubkey=False):
         doc = {
@@ -89,7 +90,7 @@ class PollingService:
     def enqueue(self, doc):
         dbaas.enqueue(self.resource.txqueue_client, self.resource.queue_name, doc)
 
-    def process(self, doc):
+    def process(self, doc, no_enqueue=False):
         try:
             print('\n-------------------------------------------------')
 
@@ -120,9 +121,11 @@ class PollingService:
             if not doc[dap_consts.SIGNING_SERVICE]:
                 doc[dap_consts.SIGNING_SERVICE] = str(e)
 
-        print('Enqueueing')
-        pprint(doc)
-        self.enqueue(doc)
+        if not no_enqueue:
+            print('Enqueueing')
+            pprint(doc)
+            self.enqueue(doc)
+        return doc
 
     # This function needs to be overriden if there are any other resources that have txqueue clients (e.g., approval server)
     def update_txqueue_client(self):

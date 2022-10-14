@@ -328,3 +328,15 @@ variable "RHPAM_APPROVER_PASSWORD" {
   type        = string
   description = "Approver password (aimee, jon, katy)."
 }
+
+variable "SIGNING_SERVICE_SERVER" {
+  type        = string
+  description = "Enable server mode for signing service."
+  default     = "false"
+}
+
+variable "SIGNING_SERVICE_PORT" {
+  type        = string
+  description = "Signing service port."
+  default     = "5002"
+}

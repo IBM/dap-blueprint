@@ -7,6 +7,7 @@
 import json, uuid, time, os
 from polling_service import PollingService
 import dbaas, dap_hpcs, dap_crypto, dap_cos, dap_consts, hpcs_util
+import distutils.util
 
 WALLET_BACKUP_BUCKET_NAME = 'wallet-backup'
 if "WALLET_BACKUP_BUCKET" in os.environ:
@@ -37,7 +38,7 @@ class SigningService(PollingService):
 
         self.__skip_hpcs_verify = False
         if 'SKIP_HPCS_VERIFY' in os.environ and os.environ['SKIP_HPCS_VERIFY']:
-            self.__skip_hpcs_verify = True
+            self.__skip_hpcs_verify = bool(distutils.util.strtobool(os.environ['SKIP_HPCS_VERIFY']))
         self.__hpcs_interval = 0
         if 'HPCS_INTERVAL' in os.environ and os.environ['HPCS_INTERVAL']:
             self.__hpcs_interval = int(os.environ['HPCS_INTERVAL'])
