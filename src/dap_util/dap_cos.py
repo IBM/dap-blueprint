@@ -74,18 +74,28 @@ def delete_item(bucket_name, item_name, cos):
         print("Unable to delete item: {0}".format(e))
 
 def create_cos_client(name):
-    if 'DAP_ROOT_DIR' not in os.environ:
-        raise Exception('DAP_ROOT_DIR environment variable is not set')
-    if 'ENC_COS_API_KEY' not in os.environ:
-        raise Exception('ENC_COS_API_KEY environment variable is not set')
-    if 'ENC_COS_ID' not in os.environ:
-        raise Exception('ENC_COS_ID environment variable is not set')
+    cos_apikey = None
+    cos_id = None
 
-    dap_dir = os.environ['DAP_ROOT_DIR']
+    if 'COS_API_KEY' in os.environ:
+        cos_apikey = os.environ['COS_API_KEY']
+    if 'COS_ID' in os.environ:
+        cos_id = os.environ['COS_ID']
 
-    # Decrypt COS API key and COS ID
-    cos_apikey = dap_crypto.rsa_decrypt(dap_dir + '/build-time-keys/private.pem', os.environ['ENC_COS_API_KEY'])
-    cos_id = dap_crypto.rsa_decrypt(dap_dir + '/build-time-keys/private.pem', os.environ['ENC_COS_ID'])
+    if cos_apikey == None or cos_id == None:
+        if 'DAP_ROOT_DIR' not in os.environ:
+            raise Exception('DAP_ROOT_DIR environment variable is not set')
+        if 'ENC_COS_API_KEY' not in os.environ:
+            raise Exception('ENC_COS_API_KEY environment variable is not set')
+        if 'ENC_COS_ID' not in os.environ:
+            raise Exception('ENC_COS_ID environment variable is not set')
+
+        dap_dir = os.environ['DAP_ROOT_DIR']
+
+        # Decrypt COS API key and COS ID
+        cos_apikey = dap_crypto.rsa_decrypt(dap_dir + '/build-time-keys/private.pem', os.environ['ENC_COS_API_KEY'])
+        cos_id = dap_crypto.rsa_decrypt(dap_dir + '/build-time-keys/private.pem', os.environ['ENC_COS_ID'])
+
     print('cos_apikey: {}'.format(cos_apikey))
     print('cos_id: {}'.format(cos_id))
 
