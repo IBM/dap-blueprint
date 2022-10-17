@@ -307,12 +307,12 @@ variable "MAIL_PASSWORD" {
 variable "DBAAS_RESOURCE_GROUP" {
   type        = string
   description = "Resource group to create a Hyper Protect DBaaS instance."
-  default     = "mongodb-flexible"
 }
 
 variable "DBAAS_PLAN" {
   type        = string
-  description = "Plan to create a Hyper Protect DBaaS instance in your IBM Cloud account."
+  description = "Plan to create a Hyper Protect DBaaS instance."
+  default     = "mongodb-flexible"
 }
 
 variable "RHSSO_ADMIN_PASSWORD" {
