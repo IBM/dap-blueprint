@@ -93,6 +93,7 @@ echo "Storing KIE_SECRET and KIE_EXECUTION_SERVER_SECRET in COS"
 ./kcreg.sh create -s clientId=flask -s 'redirectUris=["https://localhost:5000/*","https://localhost:5001/*","https://dap-host:5000/*","https://approval-host:5001/*"]'
 ./kcreg.sh update kie -s 'redirectUris=["https://localhost:8443/business-central/*","https://rhpam-host:8443/business-central/*"]'
 ./kcreg.sh update kie-execution-server -s 'redirectUris=["https://localhost:8443/kie-server/*"]'
+sleep 5
 OIDC_SECRET=`./kcreg.sh get flask | jq -r '.secret'`
 echo OIDC_SECRET=${OIDC_SECRET}
 echo -n ${OIDC_SECRET} > /tmp/oidc-secret.txt
