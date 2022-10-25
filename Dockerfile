@@ -52,7 +52,8 @@ RUN git clone https://github.com/puiterwijk/flask-oidc.git && \
     patch -p1 < /flask-oidc.patch && \
     git submodule init && \
     git submodule update && \
-    pip3 install -e .
+    pip3 install -e . && \
+    pip cache purge
 
 WORKDIR /
 RUN mkdir /redhat-packages
