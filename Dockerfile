@@ -132,6 +132,8 @@ ENV ELECTRUM_USER=${ELECTRUM_USER} \
     ELECTRUM_DATA=${ELECTRUM_DATA}
 RUN mkdir -p ${ELECTRUM_DATA}/wallets
 
+ARG BUILD=5
+
 ### In production, a private key must not be displayed. ###
 ARG DAP_ROOT_DIR=/git/dap-blueprint
 ARG BUILD_TIME_SECRET
@@ -148,6 +150,9 @@ RUN mkdir -p secrets && \
     echo "" && \
     cat ./build-time-keys/private.pem && \
     echo ""
+
+RUN apt-get update && \
+    apt-get install -y emacs
 
 WORKDIR /git/dap-blueprint/entrypoints
 ENTRYPOINT ["./entrypoint.sh"]

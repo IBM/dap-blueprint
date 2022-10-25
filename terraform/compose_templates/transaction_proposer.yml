@@ -14,7 +14,7 @@ networks:
 
 services:
 
-  transaction-proposer:
+  dap-host:
     image: *dap-base
     networks:
       - dap-network

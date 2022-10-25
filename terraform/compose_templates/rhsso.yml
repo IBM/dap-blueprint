@@ -14,7 +14,7 @@ networks:
 
 services:
 
-  rhsso:
+  rhsso-host:
     image: *dap-base
     networks:
       - dap-network

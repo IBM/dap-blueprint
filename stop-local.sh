@@ -31,7 +31,7 @@ elif [ ${SERVICE} == SS ]; then
     docker-compose down
     popd > /dev/null
 else
-    WORKLOADS="signing_service authorization_policy_service fraud_detection_policy_service transaction_approval_policy_service"
+    WORKLOADS="transaction_proposer signing_service authorization_policy_service fraud_detection_policy_service transaction_approval_policy_service"
     for WORKLOAD in ${WORKLOADS}
     do
         pushd terraform/${WORKLOAD} > /dev/null

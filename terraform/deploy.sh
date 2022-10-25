@@ -36,7 +36,7 @@ elif [[ ${SERVICE} == TAP ]]; then
 elif [[ ${SERVICE} == SS ]]; then
     TARGETS="${TARGETS} ${SS_TARGETS}"
 else
-    TARGETS="${TARGETS} ${AP_TARGETS} ${FDP_TARGETS} ${TAP_TARGETS} ${SS_TARGETS}"
+    TARGETS="${TARGETS} ${TP_TARGETS} ${AP_TARGETS} ${FDP_TARGETS} ${TAP_TARGETS} ${SS_TARGETS}"
 fi
 
 

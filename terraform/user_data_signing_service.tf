@@ -31,10 +31,10 @@ resource "hpcr_contract_encrypted" "signing_service_contract" {
 
 resource "local_file" "signing_service_contract" {
   content  = local.signing_service_contract
-  filename = "signing_service_contract.yml"
+  filename = "ss_plain.yml"
 }
 
 resource "local_file" "signing_service_contract_encrypted" {
   content  = hpcr_contract_encrypted.signing_service_contract.rendered
-  filename = "signing_service_contract_encrypted.yml"
+  filename = "ss.yml"
 }

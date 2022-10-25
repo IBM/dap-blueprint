@@ -13,7 +13,7 @@ resource "ibm_is_instance" "signing_service_vsi" {
   zone    = "${var.REGION}-${var.ZONE}"
 
   # the user data field carries the encrypted contract, so all information visible at the hypervisor layer is encrypted
-  user_data = file("./signing_service_contract_encrypted.yml")
+  user_data = file("./ss.yml")
 
   primary_network_interface {
     name            = "eth0"

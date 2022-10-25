@@ -31,10 +31,10 @@ resource "hpcr_contract_encrypted" "fraud_detection_policy_service_contract" {
 
 resource "local_file" "fraud_detection_policy_service_contract" {
   content  = local.fraud_detection_policy_service_contract
-  filename = "fraud_detection_policy_service_contract.yml"
+  filename = "fdp_plain.yml"
 }
 
 resource "local_file" "fraud_detection_policy_service_contract_encrypted" {
   content  = hpcr_contract_encrypted.fraud_detection_policy_service_contract.rendered
-  filename = "fraud_detection_policy_service_contract_encrypted.yml"
+  filename = "fdp.yml"
 }

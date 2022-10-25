@@ -13,7 +13,7 @@ resource "ibm_is_instance" "fraud_detection_policy_service_vsi" {
   zone    = "${var.REGION}-${var.ZONE}"
 
   # the user data field carries the encrypted contract, so all information visible at the hypervisor layer is encrypted
-  user_data = file("./fraud_detection_policy_service_contract_encrypted.yml")
+  user_data = file("./fdp.yml")
 
   primary_network_interface {
     name            = "eth0"

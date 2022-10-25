@@ -20,22 +20,22 @@ SS_TARGETS="-target local_file.signing_service_contract -target local_file.signi
 
 TARGETS="${RHSSO_TARGETS} ${TP_TARGETS} ${AP_TARGETS} ${FDP_TARGETS} ${TAP_TARGETS} ${SS_TARGETS}"
 
-touch rhsso_contract_encrypted.yml
-touch transaction_proposer_contract_encrypted.yml
-touch authorization_policy_service_contract_encrypted.yml
-touch fraud_detection_policy_service_contract_encrypted.yml
-touch transaction_approval_policy_service_contract_encrypted.yml
-touch signing_service_contract_encrypted.yml
+touch rhsso.yml
+touch tp.yml
+touch ap.yml
+touch fdp.yml
+touch tap.yml
+touch ss.yml
 
 echo Destroying ${TARGETS}
 terraform destroy ${TARGETS}
 
-touch rhsso_contract_encrypted.yml
-touch transaction_proposer_contract_encrypted.yml
-touch authorization_policy_service_contract_encrypted.yml
-touch fraud_detection_policy_service_contract_encrypted.yml
-touch transaction_approval_policy_service_contract_encrypted.yml
-touch signing_service_contract_encrypted.yml
+touch rhsso.yml
+touch tp.yml
+touch ap.yml
+touch fdp.yml
+touch tap.yml
+touch ss.yml
 
 echo Deploying ${TARGETS}
 terraform apply ${TARGETS}
