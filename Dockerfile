@@ -151,8 +151,5 @@ RUN mkdir -p secrets && \
     cat ./build-time-keys/private.pem && \
     echo ""
 
-RUN apt-get update && \
-    apt-get install -y emacs
-
 WORKDIR /git/dap-blueprint/entrypoints
 ENTRYPOINT ["./entrypoint.sh"]
