@@ -17,6 +17,29 @@ ARG REDHAT_EMAIL
 ARG REDHAT_TOKEN
 RUN ./csp-download.sh ${REDHAT_EMAIL} ${REDHAT_TOKEN}
 
+FROM ubuntu:18.04 as PYTHON_BUILD
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ARG GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential libgmp3-dev libffi-dev jq libssl-dev libxml2-dev libxslt-dev python3.8-dev software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get install -y --no-install-recommends python3.8 python3-pip python3-setuptools python3.8-distutils && \
+    cd /usr/bin/ && rm -rf python3 && ln -s python3.8 python3 && \
+    python3 -m pip install --upgrade pip==21.2.4 && \
+    pip3 install --upgrade setuptools==57.5.0 && \
+    pip3 install --upgrade distlib && \
+    pip3 install wheel
+
+RUN pip3 install flask==1.1.2 flask_restx flask_sqlalchemy flask_jwt_extended pymongo==3.12.2 asn1==2.2.0 cython ibm-cos-sdk flask-mail==0.9.1 flask_cors certifi requests pyyaml dnspython pyaes ecdsa qrcode aiorpcx aiohttp aiohttp_socks bitstring jsonrpcclient==3.3.5 jsonrpcserver==4.2.0 jinja2==3.0.3 werkzeug==2.0.3
+RUN pip3 install cryptography==3.3.2 pycryptodome argon2 pycryptodomex pyopenssl
+RUN pip3 install grpcio===1.48.1 grpcio-tools==1.48.1
+RUN pip3 install lxml
+RUN pip3 uninstall -y itsdangerous && \
+    pip3 install itsdangerous==2.0.0
+
 FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -24,27 +47,21 @@ ENV PYTHONUNBUFFERED=1
 ARG GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential git libgmp3-dev curl procps less libffi-dev wget unzip jq libssl-dev libxml2-dev libxslt-dev python3.8-dev cargo software-properties-common
-RUN add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get install -y --no-install-recommends git curl procps less wget unzip jq software-properties-common openssh-server patch libgmp3-dev libffi-dev libssl-dev libxml2-dev libxslt-dev && \
+    mkdir /var/run/sshd && \
+    add-apt-repository ppa:deadsnakes/ppa && \
     apt-get install -y --no-install-recommends python3.8 python3-pip python3-setuptools python3.8-distutils && \
-    cd /usr/bin/ && rm -rf python3 && ln -s python3.8 python3
-RUN apt-get install -y openssh-server && \
-    mkdir /var/run/sshd
+    cd /usr/bin/ && rm -rf python3 && ln -s python3.8 python3 && \
+    python3 -m pip install --upgrade pip==21.2.4 && \
+    pip3 install --upgrade setuptools==57.5.0 && \
+    pip3 install --upgrade distlib && \
+    pip3 install wheel && \
+    pip3 install supervisor
+
+COPY --from=PYTHON_BUILD /usr/local/lib/python3.8/dist-packages /usr/local/lib/python3.8/dist-packages
 
 RUN mkdir /git
 WORKDIR /git
-
-RUN python3 -m pip install --upgrade pip==21.2.4 && \
-    pip3 install --upgrade setuptools==57.5.0 && \
-    pip3 install --upgrade distlib && \
-    pip3 install wheel
-
-RUN pip3 install flask==1.1.2 flask_restx flask_sqlalchemy flask_jwt_extended pymongo==3.12.2 asn1==2.2.0 cython ibm-cos-sdk flask-mail==0.9.1 flask_cors certifi requests pyyaml supervisor dnspython pyaes ecdsa qrcode aiorpcx aiohttp aiohttp_socks bitstring jsonrpcclient==3.3.5 jsonrpcserver==4.2.0 jinja2==3.0.3 werkzeug==2.0.3
-RUN pip3 install cryptography==3.3.2 pycryptodome argon2 pycryptodomex pyopenssl
-RUN pip3 install grpcio-tools
-RUN pip3 install lxml
-RUN pip3 uninstall -y itsdangerous && \
-    pip3 install itsdangerous==2.0.0
 
 ADD flask-oidc.patch /
 RUN git clone https://github.com/puiterwijk/flask-oidc.git && \
@@ -53,11 +70,11 @@ RUN git clone https://github.com/puiterwijk/flask-oidc.git && \
     git submodule init && \
     git submodule update && \
     pip3 install -e . && \
-    pip cache purge
+    pip3 cache purge && \
+    mkdir /redhat-packages
 
-WORKDIR /
-RUN mkdir /redhat-packages
 ADD redhat /redhat
+WORKDIR /
 
 ##### Red Hat Single Sign-On #####
 ADD /redhat/install-java.sh /
@@ -86,9 +103,8 @@ COPY --from=CSP /redhat-packages/rhpam-7.11.0-kie-server-ee8.zip /redhat-package
 RUN unzip /redhat-packages/jboss-eap-7.3.0.zip && \
     unzip -o -d /jboss-eap-7.3 /redhat-packages/rh-sso-7.4.0-eap7-adapter.zip && \
     unzip -o /redhat-packages/rhpam-7.11.0-business-central-eap7-deployable.zip && \
-    unzip /redhat-packages/rhpam-7.11.0-kie-server-ee8.zip
-
-RUN mv kie-server.war /jboss-eap-7.3/standalone/deployments/ && \
+    unzip /redhat-packages/rhpam-7.11.0-kie-server-ee8.zip && \
+    mv kie-server.war /jboss-eap-7.3/standalone/deployments/ && \
     cp -r SecurityPolicy/* /jboss-eap-7.3/bin/ && \
     rm -rf SecurityPolicy && \
     touch /jboss-eap-7.3/standalone/deployments/kie-server.war.dodeploy && \
