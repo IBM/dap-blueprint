@@ -34,7 +34,7 @@ resource "ibm_is_floating_ip" "transaction_proposer_floating_ip" {
   tags   = local.tags
 }
 
-output "rhsso_reserved_ip" {
+output "transaction_proposer_reserved_ip" {
   value = ibm_is_subnet_reserved_ip.transaction_proposer_reserved_ip.address
   description = "The reserved IP address of the VSI"
 }

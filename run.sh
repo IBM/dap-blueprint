@@ -11,4 +11,5 @@ DOCKER_BUILD_LOG=${3:-docker-build.log}
 ./create-tf-env.sh ${DAP_REBOOT} false ${DOCKER_BUILD_LOG}
 
 cd terraform
+./create_contract.sh
 ./deploy.sh ${SERVICE}
