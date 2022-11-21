@@ -79,7 +79,7 @@ You need to set up the followings to build and deploy DAP Blueprint.
 
 3. [Container Registry Name Space](https://cloud.ibm.com/docs/Registry)
    
-   Create a new name space in IBM Container Registry to store your DAP Blueprint image. Please use **Dallas** region for the name space because only the Dallas region supports Docker Content Trust (DCT) which is needed to deploy Hyper Protect Virtual Server instances.
+   Create a new name space in IBM Container Registry to store your DAP Blueprint image. Please use **Dallas** region because only the Dallas region supports Docker Content Trust (DCT) which is needed to deploy Hyper Protect Virtual Server instances.
 
 4. [Cloud Object Storage (COS) Instance and Buckets](https://cloud.ibm.com/objectstorage/create)
    
@@ -175,18 +175,17 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    
     | Environment Variable                         |Description                                                                 |
     | -------------------------------------------- | -------------------------------------------------------------------------- |
-    | RHSSO_HOST                                   | IP address of your Red Hat Single Sign-On (RHSSO) server. This is known after deploying a RHSSO server. So, please set 127.0.0.1 at this time. |
-    | DAP_HOST                                     | IP address of your transaction proposer. This is known after deploying a RHSSO server. So, please set 127.0.0.1 at this time. |
+    | RHSSO_HOST                                   | IP address of your Red Hat Single Sign-On (RHSSO) server. For local deployment, this is known after deploying a RHSSO server. So, please set 127.0.0.1 at this time. For cloud deployment, please set 10.X.Y.10. X and Y are different based on the region and zone which you choose. Please refer the address prefix [here](https://cloud.ibm.com/docs/vpc?topic=vpc-configuring-address-prefixes&locale=en). |
+    | DAP_HOST                                     | IP address of your transaction proposer. For local deployment, this is known after deploying a transaction proposer. So, please set 127.0.0.1 at this time. For cloud deployment, please set 10.X.Y.23. X and Y are different based on the region and zone which you choose. Please refer the address prefix [here](https://cloud.ibm.com/docs/vpc?topic=vpc-configuring-address-prefixes&locale=en). |
     | IC_API_KEY                                   | IBM Cloud API key which you creatated at Prerequisites 2. |
     | REGION                                       | IBM Cloud region which you want to deploy your DAP Blueprint instances (e.g., jp-tok). This is not used for local deployment. |
     | ZONE                                         | IBM Cloud zone which you want to deploy your DAP Blueprint instances (e.g., 1). |
     | REGISTRY_USERNAME                            | Username to login IBM Cloud. This should be `iamapikey`. |
     | REGISTRY_PASSWORD                            | IBM Cloud API key which you creatated at Prerequisites 2. |
-    | DBAAS_USER_ID                                | User ID to access your Hyper Protect DBaaS (HPDBaaS) instances. Keep the default user id `admin`. |
+    | DBAAS_USER_ID                                | User ID to access your Hyper Protect DBaaS (HPDBaaS) instances. Set `admin`. |
     | DBAAS_API_KEY                                | IBM Cloud API key which you creatated at Prerequisites 2. |
-    | DBAAS_CA_FILE                                | Path to a HPDBaaS certificate authority file which you downloaded at Prerequisites 6. This is the file path, not the content of the file. |
     | DBAAS_RESOURCE_GROUP                         | IBM Cloud resource group which you want to create HPDBaaS instances (e.g., default). |
-    | DBAAS_PLAN                                   | Plan name to create your HPDBaaS instances (e.g., mongodb-flexible). Note that DAP Blueprint only supports Hyper Protect DBaaS for MongoDB. |
+    | DBAAS_PLAN                                   | Plan name to create your HPDBaaS instances (e.g., mongodb-flexible). |
     | TXQUEUE_NAME                                 | HPDBaaS instance name for your transaction queue (e.g., dap-txqueue). |
     | WALLETDB_NAME                                | HPDBaaS instance name for your wallet DB (e.g., dap-walletdb). |
     | COS_API_KEY                                  | IBM Cloud API key which you creatated at Prerequisites 2. |
@@ -390,12 +389,12 @@ This is a procedure to build a DAP Blueprint image on [Secure Build Server](http
    ./create-contract.sh False docker-build.log
    ```
    Please sepcify `True` as the second argument when you reboot DAP Blueprint services. This command creates the following six encrypted contract files under `terraform/`. You can deploy DAP Blueprint services on [IBM Cloud Hyper Protect Virtual Server for IBM Cloud VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se) by using terraform scripts and these encrypted contract files.
-   - rhsso_contract_encrypted.yml
-   - transaction_proposer_contract_encrypted.yml
-   - authorization_policy_service_contract_encrypted.yml
-   - fraud_detection_policy_service_contract_encrypted.yml
-   - transaction_approval_policy_service_contract_encrypted.yml
-   - signing_service_contract_encrypted.yml
+   - rhsso.yml (RHSSO)
+   - tp.yml (Transaction Proposer)
+   - ap.yml (Authorization Policy Service)
+   - fdp.yml (Fraud Detection Policy Service)
+   - tap.yml (Transaction Approval Policy Service)
+   - ss.yml (Signing Service)
 
 <a id="vpc-deploy"></a>
 
