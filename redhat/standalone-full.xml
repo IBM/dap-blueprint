@@ -53,9 +53,9 @@
     and application-users.properties-->
       <property name="org.kie.server.location" value="http://localhost:8080/kie-server/services/rest/server"/>
       <property name="org.kie.server.controller" value="http://localhost:8080/business-central/rest/controller"/>
-      <property name="org.kie.server.controller.user" value="admin-password"/>
+      <property name="org.kie.server.controller.user" value="admin"/>
       <property name="org.kie.server.controller.pwd" value="admin-password"/>
-      <property name="org.kie.server.user" value="admin-password"/>
+      <property name="org.kie.server.user" value="admin"/>
       <property name="org.kie.server.pwd" value="admin-password"/>
       <!--
       <property name="org.kie.server.controller.user" value="controlleruser"/>
