@@ -70,6 +70,7 @@ RUN git clone https://github.com/puiterwijk/flask-oidc.git && \
     git submodule init && \
     git submodule update && \
     pip3 install -e . && \
+    pip3 install httplib2==0.20.0 && \
     pip3 cache purge && \
     mkdir /redhat-packages
 
