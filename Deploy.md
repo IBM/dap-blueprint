@@ -164,6 +164,24 @@ This is a procedure to build a DAP Blueprint image in your laptop or Linux machi
 
 This is a procedure to deploy the DAP Blueprint image, which you built in the steps [here](#local-build)), in your local docker environment. Although you need to deploy six services in total, some services have dependencies. So, please follow the steps below carefully.
 
+1. Install required os packages:
+
+   ```
+   apt install docker.io docker-compose jq python3 pip
+   ```
+
+1. Install required python libraries:
+
+   ```
+   python3 -m pip install -r ./requirements.txt
+   ```
+
+1. Create the docker external network
+
+   ```
+   docker network create dap-network
+   ```
+
 1. Copy an environment-variable file
    
    ```
@@ -171,7 +189,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    # cp .env.template .env
    ```
 
-2. Fill environment variables in `.env`
+1. Fill environment variables in `.env`
    
     | Environment Variable                         |Description                                                                 |
     | -------------------------------------------- | -------------------------------------------------------------------------- |
@@ -224,7 +242,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
 
     You can see multiple environment variables that have IBM Cloud API key. For simplicity, we assumed to set the same API key for the environment variables. From a security perspective, you should create different API keys for each instance (service) and set them to the environment variables.
 
-3. Run Red Hat Single Sign-On (RHSSO) Server
+1. Run Red Hat Single Sign-On (RHSSO) Server
    
    ```
    # ./run-local.sh RHSSO
@@ -233,7 +251,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    ```
    After running the last command, you can see the information of your RHSSO container. At this time, you should be able to find `IPAddress` (e.g., `"IPAddress": "172.17.0.2",`). Please set the IP address to the `RHSSO_HOST` environment variable in your `.env` file.
 
-4. Run Signing Service
+1. Run Signing Service
    
    ```
    # ./run-local.sh SS False docker-build.log
@@ -242,7 +260,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
 
    When you reboot the signing service, you can skip this step.
 
-5. Run Transaction Proposer
+1. Run Transaction Proposer
    
    ```
    # ./run-local.sh TP False docker-build.log
@@ -250,7 +268,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    ```
    After running the last command, you can see the information of your transaction proposer container. At this time, you should be able to find `IPAddress` (e.g., `"IPAddress": "172.17.0.3",`). Please set the IP address to the `DAP_HOST` environment variable in your `.env` file.
 
-6. Run Other Services
+1. Run Other Services
    
    ```
    # ./run-local.sh AP False docker-build.log
