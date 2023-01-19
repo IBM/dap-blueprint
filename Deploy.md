@@ -246,10 +246,14 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    
    ```
    # ./run-local.sh RHSSO
+   ```
+
+1. Inspect the RHSSO running container to find the `IPAddress` value and set the `RHSSO_HOST` environment variable in your `.env` file.
+
+   ```
    # docker ps
    # docker inspect <Your RHSSO container name or ID>
    ```
-   After running the last command, you can see the information of your RHSSO container. At this time, you should be able to find `IPAddress` (e.g., `"IPAddress": "172.17.0.2",`). Please set the IP address to the `RHSSO_HOST` environment variable in your `.env` file.
 
 1. Run Signing Service
    
@@ -264,9 +268,14 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    
    ```
    # ./run-local.sh TP False docker-build.log
+   ```
+   
+1. Inspect the transaction proposer running container to find the `IPAddress` value and set the `DAP_HOST` environment variable in your `.env` file.
+
+   ```
+   # docker ps
    # docker inspect <Your transaction proposer container name or ID>
    ```
-   After running the last command, you can see the information of your transaction proposer container. At this time, you should be able to find `IPAddress` (e.g., `"IPAddress": "172.17.0.3",`). Please set the IP address to the `DAP_HOST` environment variable in your `.env` file.
 
 1. Run Other Services
    
