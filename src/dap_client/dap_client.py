@@ -4,6 +4,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
+sys.path.append('../dap_util')
+
 import os, argparse, json, ssl, copy, logging, sys, lxml.html, time
 from filters import JsonFilter, StringFilter
 from urllib.parse import quote
