@@ -233,6 +233,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
     | RHPAM_APPROVER_PASSWORD                      | Password for approvers that are registered to your RHPAM server. Currently, DAP Blueprint registers three approvers: aimee, jon, katy. This is a tentative setting for simplification because all of the approvers have the same password. In production, different passwords should be registered for each approver. |
     | TRANSACTION_PROPOSER_PORT                    | Port of your transaction proposer. |
     | APPROVAL_SERVER_PORT                         | Port of your approval server. |
+    | SIGNING_SERVICE_PORT                         | Port of your signing service. |
     | RHSSO_SSH_PORT                               | SSH port of your RHSSO container. This is only for test purpose. |
     | TRANSACTION_PROPOSER_SSH_PORT                | SSH port of your transaction proposer container. This is only for test purpose. |
     | AUTHORIZATION_POLICY_SERVICE_SSH_PORT        | SSH port of your authorization policy service container. This is only for test purpose. |
