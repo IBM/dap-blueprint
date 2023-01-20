@@ -233,6 +233,8 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    ```
    After running the last command, you can see the information of your RHSSO container. At this time, you should be able to find `IPAddress` (e.g., `"IPAddress": "172.17.0.2",`). Please set the IP address to the `RHSSO_HOST` environment variable in your `.env` file.
 
+   In addition, please check if the initialization of RHSSO finishes by entering to the RHSSO container. You can enter the container with a command `docker exec -it <RHSSO container ID> bash`. After that, please check a RHSSO log `/dap-logs/rhsso-init.out`. If you can see `FRONTEND_URL=https://rhsso-host:8543/auth` in the log, the initialization of RHSSO finishes. Please note that other containers fails to start if you do not see that log message.
+
 4. Run Signing Service
    
    ```
