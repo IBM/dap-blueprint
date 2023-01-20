@@ -710,7 +710,7 @@ export ELECTRUM_DATA=/data
 #### Cerate a wallet
 
 ```
-./electrum_client.py create_dap <userid (alice, bob, or charlie)> <password> 
+./electrum_client.py create_dap <userid (alice, bob, or charlie)> <password> -seedid <seed id created using dap_client.py from above)
 ```
 
 Currently, only three userids (alice, bob, and charlie) can be used with a password `passw0rd` (0 is zero). The password is used for authentication to transaction proposer. 
