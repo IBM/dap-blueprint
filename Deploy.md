@@ -36,6 +36,7 @@
       - [Create a transaction to send an amount of bitcoins](#create-a-transaction-to-send-an-amount-of-bitcoins)
       - [Get a signed transaction](#get-a-signed-transaction)
       - [Broadcast a signed transaction](#broadcast-a-signed-transaction)
+      - [Funding and transferring](#funding-and-transferring)
 
 <a id="overview"></a>
 
@@ -750,4 +751,40 @@ Currently, only three userids (alice, bob, and charlie) can be used with a passw
 ```
 ./electrum_client.py broadcast <a raw transaction in hex>
 ```
+  
+#### Funding and transferring
 
+After creating a user wallet and obtaining a new bitcoin address, you can use the address to obtain some test BTCs from one of the following bitcoin faucet sites.
+
+- https://coinfaucet.eu/en/btc-testnet/
+- https://bitcoinfaucet.uo1.net/
+  
+1. Use one of the faucet sites to send bitcoin to a user's wallet via their new address obtained from the steps above.
+
+1. After sending bitcoin from the site to the wallet, check the available balance and you will see some bitcoin are now available within the wallet. 
+
+    ```
+    ./electrum_client.py getbalance <userid>
+    ```
+  
+1. Send a portion of the bitcoin to another user's wallet address which will produce a transaction:
+
+    ```
+    ./electrum_client.py payto <from-userid> <destination-address> <bitcoin-amount>
+    ```
+  
+1. Obtain the signed transaction:
+
+    ```
+    ./electrum_client.py getsignedtx <userid> <a raw transaction in hex (PSBT)>
+    ```
+  
+1. Broadcast the transaction
+  
+    ```
+    ./electrum_client.py broadcast <a raw transaction in hex>
+    ```
+
+1. Verify the new bitcoin is available within the new user's wallet.
+  
+1. After testing, please send the remaining bitcoin back to the faucet site where the btc originated. 
