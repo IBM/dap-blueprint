@@ -569,7 +569,7 @@ This command stores a public key of a policy service in a file `.dap.tmp/<policy
 ./dap_client.py create_seed <user>
 ```
 
-You should be able to see the following response.
+You should be able to see the following response and should record your seed id as it will be used later to create a wallet.
 
 ```
 {'seedid': <Your seed id>, 'status': 'ok'}
