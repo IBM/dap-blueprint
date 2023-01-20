@@ -789,4 +789,4 @@ After creating a user wallet and obtaining a new bitcoin address, you can use th
 
 1. Verify the new bitcoin is available within the new user's wallet.
   
-1. After testing, please send the remaining bitcoin back to the faucet site where the bitcoin originated. 
+1. After testing, please send the remaining bitcoin back to the faucet site where the bitcoin originated. If you obtain an `Insufficent Funds` error then the amount you are sending doesn't have enough to include the transaction fee. See https://live.blockcypher.com/btc-testnet/ for current transaction feeds on the bitcoin testnet. 
