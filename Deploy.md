@@ -702,9 +702,9 @@ Note that you need to have `.env` file that you used to deploy dap-blueprint ser
 ```electrum_client.py``` under ```dap-blueprint/src/dap_util``` is a command line interface (CLI) to call JSON RPCs of our enhanced Electrum. Using the CLI allows you to perform the following operations. To use the electrum client, you must set the environment variables (hardcoded in the Dockerfile):
 
 ```
-  export ELECTRUM_USER=electrum
-  export ELECTRUM_PASSWORD=passw0rd
-  export ELECTRUM_DATA=/data
+export ELECTRUM_USER=electrum
+export ELECTRUM_PASSWORD=passw0rd
+export ELECTRUM_DATA=/data
 ```
 
 #### Cerate a wallet
