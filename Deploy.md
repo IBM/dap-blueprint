@@ -496,10 +496,10 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
 
 All of the services in DAP Blueprint authenticate users through Red Hat Single Sign-On (RHSSO). In the authentication process, multiple redirections occur between a service and RHSSO. At that time, RHSSO verifies if the redirected URLs are valid. In DAP Blueprint, specific host names are used for the redirected URLs. Therefore, please set the following host names in your `/etc/hosts`.
 
-- rhsso-host      <IP address of your RHSSO server>
-- dap-host        <IP address of your transaction proposer>
-- rhpam-host      <IP address of your authorization policy service>
-- approval-host   <IP address of your authorization policy service>
+- rhsso-host: IP address of your RHSSO server
+- dap-host: IP address of your transaction proposer
+- rhpam-host: IP address of your authorization policy service
+- approval-host: IP address of your authorization policy service
 
 When you deploy DAP Blueprint locally, please set `127.0.0.1` to all of the above addresses. When you deploy DAP Blueprint on IBM Cloud Hyper Protect Virtual Server for IBM Cloud VPC, please obtain the IP addresses from the outputs of `./run.sh`.
   
