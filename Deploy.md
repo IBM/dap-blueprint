@@ -562,10 +562,11 @@ The third argument is an one-time passcode which can be obtained from Google Aut
 
 This command stores a public key of a policy service in a file `.dap.tmp/<policy service name>.pubkey`.
 
-#### Create a master seed
+#### Create a master seed for users
 
 ```
-./dap_client.py create_seed alice
+./dap_client login <user> <password>
+./dap_client.py create_seed <user>
 ```
 
 You should be able to see the following response.
