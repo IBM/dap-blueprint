@@ -784,7 +784,7 @@ After creating a user wallet and obtaining a new bitcoin address, you can use th
 1. Broadcast the transaction
   
     ```
-    ./electrum_client.py broadcast <a raw transaction in hex>
+    ./electrum_client.py broadcast <userid> <a raw transaction in hex>
     ```
 
 1. Verify the new bitcoin is available within the new user's wallet.
