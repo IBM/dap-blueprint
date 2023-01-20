@@ -257,7 +257,12 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    # docker inspect <Your RHSSO container name or ID>
    ```
 
-   In addition, please check if the initialization of RHSSO finishes by entering to the RHSSO container. You can enter the container with a command `docker exec -it <RHSSO container ID> bash`. After that, please check a RHSSO log `/dap-logs/rhsso-init.out`. If you can see `FRONTEND_URL=https://rhsso-host:8543/auth` in the log, the initialization of RHSSO finishes. Please note that other containers fails to start if you do not see that log message.
+1. Before continuing, check if the initialization of RHSSO finishes by entering to the RHSSO container and check the `/dap-logs/rhsso-init.out` log contains the message `FRONTEND_URL=https://rhsso-host:8543/auth` which signifies the initialization of RHSSO has finished. Please note that other containers will fail to start if you do not wait to see that log message.
+
+   ```
+   # docker ps
+   # docker exec fdfe31dea63a cat -- /dap-logs/rhsso-init.out
+   ```
 
 1. Run Signing Service
    
@@ -267,6 +272,8 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    This command creates a container for signing service and two HPDBaaS instances (e.g., dap-txqueue, dap-walletdb). The second argument of this script specifies if you want to boot the service from scratch or reboot it. When `False` is specified, the signing service is booted from scratch. When `True` is specified, the signing service is rebooted from the backup information stored in your COS instance. We recommend `reboot` (i.e., `True` option) after you create the signing service once to reduce the fee for IBM Cloud.
 
    When you reboot the signing service, you can skip this step.
+
+1. Before continuing, check on your IBM cloud resource dashboard that the two Hyper Protect Mongo Databases are created and status set to Active. Other containers will fail to stasrt if you do not wait until the databases are ready for transactions.
 
 1. Run Transaction Proposer
    
