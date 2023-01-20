@@ -754,7 +754,7 @@ Currently, only three userids (alice, bob, and charlie) can be used with a passw
   
 #### Funding and transferring
 
-After creating a user wallet and obtaining a new bitcoin address, you can use the address to obtain some test BTCs from one of the following bitcoin faucet sites.
+After creating a user wallet and obtaining a new bitcoin address, you can use the address to obtain some test bitcoin from one of the following bitcoin faucet sites.
 
 - https://coinfaucet.eu/en/btc-testnet/
 - https://bitcoinfaucet.uo1.net/
@@ -787,4 +787,4 @@ After creating a user wallet and obtaining a new bitcoin address, you can use th
 
 1. Verify the new bitcoin is available within the new user's wallet.
   
-1. After testing, please send the remaining bitcoin back to the faucet site where the btc originated. 
+1. After testing, please send the remaining bitcoin back to the faucet site where the bitcoin originated. 
