@@ -4,6 +4,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
+sys.path.append('../dap_client')
+
 import os, argparse, json, sys
 from pprint import pprint
 from urllib import request
