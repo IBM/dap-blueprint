@@ -616,6 +616,8 @@ You should be able to see  the following response.
 ### Approval process in Red Hat Process Automation Manager (RHPAM)
 
 When your transaction meets one or more rules defined in a RHPAM server, e-mail notifications are sent to approvers (in your mailtrap account). Each notification has a URL for the RHPAM server. You can login the RHPAM server by accessing the URL in your browser. After login, you should see the following page.
+  
+- https://localhost:8443/business-central
 
 ![](images/rhpam-1.png)
 
