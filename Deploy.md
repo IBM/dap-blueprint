@@ -36,6 +36,7 @@
       - [Create a transaction to send an amount of bitcoins](#create-a-transaction-to-send-an-amount-of-bitcoins)
       - [Get a signed transaction](#get-a-signed-transaction)
       - [Broadcast a signed transaction](#broadcast-a-signed-transaction)
+      - [Funding and transferring](#funding-and-transferring)
 
 <a id="overview"></a>
 
@@ -164,6 +165,24 @@ This is a procedure to build a DAP Blueprint image in your laptop or Linux machi
 
 This is a procedure to deploy the DAP Blueprint image, which you built in the steps [here](#local-build)), in your local docker environment. Although you need to deploy six services in total, some services have dependencies. So, please follow the steps below carefully.
 
+1. Install required os packages:
+
+   ```
+   apt install docker.io docker-compose jq python3 pip
+   ```
+
+1. Install required python libraries:
+
+   ```
+   python3 -m pip install -r ./requirements.txt
+   ```
+
+1. Create the docker external network
+
+   ```
+   docker network create dap-network
+   ```
+
 1. Copy an environment-variable file
    
    ```
@@ -171,7 +190,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    # cp .env.template .env
    ```
 
-2. Fill environment variables in `.env`
+1. Fill environment variables in `.env`
    
     | Environment Variable                         |Description                                                                 |
     | -------------------------------------------- | -------------------------------------------------------------------------- |
@@ -215,6 +234,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
     | RHPAM_APPROVER_PASSWORD                      | Password for approvers that are registered to your RHPAM server. Currently, DAP Blueprint registers three approvers: aimee, jon, katy. This is a tentative setting for simplification because all of the approvers have the same password. In production, different passwords should be registered for each approver. |
     | TRANSACTION_PROPOSER_PORT                    | Port of your transaction proposer. |
     | APPROVAL_SERVER_PORT                         | Port of your approval server. |
+    | SIGNING_SERVICE_PORT                         | Port of your signing service. |
     | RHSSO_SSH_PORT                               | SSH port of your RHSSO container. This is only for test purpose. |
     | TRANSACTION_PROPOSER_SSH_PORT                | SSH port of your transaction proposer container. This is only for test purpose. |
     | AUTHORIZATION_POLICY_SERVICE_SSH_PORT        | SSH port of your authorization policy service container. This is only for test purpose. |
@@ -224,18 +244,27 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
 
     You can see multiple environment variables that have IBM Cloud API key. For simplicity, we assumed to set the same API key for the environment variables. From a security perspective, you should create different API keys for each instance (service) and set them to the environment variables.
 
-3. Run Red Hat Single Sign-On (RHSSO) Server
+1. Run Red Hat Single Sign-On (RHSSO) Server
    
    ```
    # ./run-local.sh RHSSO
+   ```
+
+1. Inspect the RHSSO running container to find the `IPAddress` value and set the `RHSSO_HOST` environment variable in your `.env` file.
+
+   ```
    # docker ps
    # docker inspect <Your RHSSO container name or ID>
    ```
-   After running the last command, you can see the information of your RHSSO container. At this time, you should be able to find `IPAddress` (e.g., `"IPAddress": "172.17.0.2",`). Please set the IP address to the `RHSSO_HOST` environment variable in your `.env` file.
 
-   In addition, please check if the initialization of RHSSO finishes by entering to the RHSSO container. You can enter the container with a command `docker exec -it <RHSSO container ID> bash`. After that, please check a RHSSO log `/dap-logs/rhsso-init.out`. If you can see `FRONTEND_URL=https://rhsso-host:8543/auth` in the log, the initialization of RHSSO finishes. Please note that other containers fails to start if you do not see that log message.
+1. Before continuing, check if the initialization of RHSSO finishes by entering to the RHSSO container and check the `/dap-logs/rhsso-init.out` log contains the message `FRONTEND_URL=https://rhsso-host:8543/auth` which signifies the initialization of RHSSO has finished. Please note that other containers will fail to start if you do not wait to see that log message.
 
-4. Run Signing Service
+   ```
+   # docker ps
+   # docker exec fdfe31dea63a cat -- /dap-logs/rhsso-init.out
+   ```
+
+1. Run Signing Service
    
    ```
    # ./run-local.sh SS False docker-build.log
@@ -244,15 +273,22 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
 
    When you reboot the signing service, you can skip this step.
 
-5. Run Transaction Proposer
+1. Before continuing, check on your IBM cloud resource dashboard that the two Hyper Protect Mongo Databases are created and status set to Active. Other containers will fail to stasrt if you do not wait until the databases are ready for transactions.
+
+1. Run Transaction Proposer
    
    ```
    # ./run-local.sh TP False docker-build.log
+   ```
+   
+1. Inspect the transaction proposer running container to find the `IPAddress` value and set the `DAP_HOST` environment variable in your `.env` file.
+
+   ```
+   # docker ps
    # docker inspect <Your transaction proposer container name or ID>
    ```
-   After running the last command, you can see the information of your transaction proposer container. At this time, you should be able to find `IPAddress` (e.g., `"IPAddress": "172.17.0.3",`). Please set the IP address to the `DAP_HOST` environment variable in your `.env` file.
 
-6. Run Other Services
+1. Run Other Services
    
    ```
    # ./run-local.sh AP False docker-build.log
@@ -469,12 +505,16 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
 
 All of the services in DAP Blueprint authenticate users through Red Hat Single Sign-On (RHSSO). In the authentication process, multiple redirections occur between a service and RHSSO. At that time, RHSSO verifies if the redirected URLs are valid. In DAP Blueprint, specific host names are used for the redirected URLs. Therefore, please set the following host names in your `/etc/hosts`.
 
-rhsso-host      <IP address of your RHSSO server>
-dap-host        <IP address of your transaction proposer>
-rhpam-host      <IP address of your authorization policy service>
-approval-host   <IP address of your authorization policy service>
+- rhsso-host: IP address of your RHSSO server
+- dap-host: IP address of your transaction proposer
+- rhpam-host: IP address of your authorization policy service
+- approval-host: IP address of your authorization policy service
 
 When you deploy DAP Blueprint locally, please set `127.0.0.1` to all of the above addresses. When you deploy DAP Blueprint on IBM Cloud Hyper Protect Virtual Server for IBM Cloud VPC, please obtain the IP addresses from the outputs of `./run.sh`.
+  
+```
+127.0.0.1 rhsso-host dap-host rhpam-host approval-host
+```
 
 <a id="2fa"></a>
 
@@ -532,13 +572,14 @@ The third argument is an one-time passcode which can be obtained from Google Aut
 
 This command stores a public key of a policy service in a file `.dap.tmp/<policy service name>.pubkey`.
 
-#### Create a master seed
+#### Create a master seed for users
 
 ```
-./dap_client.py create_seed alice
+./dap_client login <user> <password>
+./dap_client.py create_seed <user>
 ```
 
-You should be able to see the following response.
+You should be able to see the following response and should record your seed id as it will be used later to create a wallet.
 
 ```
 {'seedid': <Your seed id>, 'status': 'ok'}
@@ -584,6 +625,8 @@ You should be able to see  the following response.
 ### Approval process in Red Hat Process Automation Manager (RHPAM)
 
 When your transaction meets one or more rules defined in a RHPAM server, e-mail notifications are sent to approvers (in your mailtrap account). Each notification has a URL for the RHPAM server. You can login the RHPAM server by accessing the URL in your browser. After login, you should see the following page.
+  
+- https://localhost:8443/business-central
 
 ![](images/rhpam-1.png)
 
@@ -668,12 +711,18 @@ Note that you need to have `.env` file that you used to deploy dap-blueprint ser
 
 ### Electrum CLI
 
-```electrum_client.py``` under ```dap-blueprint/src/dap_util``` is a command line interface (CLI) to call JSON RPCs of our enhanced Electrum. Using the CLI allows you to perform the following operations.
+```electrum_client.py``` under ```dap-blueprint/src/dap_util``` is a command line interface (CLI) to call JSON RPCs of our enhanced Electrum. Using the CLI allows you to perform the following operations. To use the electrum client, you must set the environment variables (hardcoded in the Dockerfile):
+
+```
+export ELECTRUM_USER=electrum
+export ELECTRUM_PASSWORD=passw0rd
+export ELECTRUM_DATA=/data
+```
 
 #### Cerate a wallet
 
 ```
-./electrum_client.py create_dap <userid (alice, bob, or charlie)> <password> 
+./electrum_client.py create_dap <userid (alice, bob, or charlie)> <password> -seedid <seed id created using dap_client.py from above)
 ```
 
 Currently, only three userids (alice, bob, and charlie) can be used with a password `passw0rd` (0 is zero). The password is used for authentication to transaction proposer. 
@@ -713,4 +762,40 @@ Currently, only three userids (alice, bob, and charlie) can be used with a passw
 ```
 ./electrum_client.py broadcast <a raw transaction in hex>
 ```
+  
+#### Funding and transferring
 
+After creating a user wallet and obtaining a new bitcoin address, you can use the address to obtain some test bitcoin from one of the following bitcoin faucet sites.
+
+- https://coinfaucet.eu/en/btc-testnet/
+- https://bitcoinfaucet.uo1.net/
+  
+1. Use one of the faucet sites to send bitcoin to a user's wallet via their new address obtained from the steps above.
+
+1. After sending bitcoin from the site to the wallet, check the available balance and you will see some bitcoin are now available within the wallet. 
+
+    ```
+    ./electrum_client.py getbalance <userid>
+    ```
+  
+1. Send a portion of the bitcoin to another user's wallet address which will produce a transaction:
+
+    ```
+    ./electrum_client.py payto <from-userid> <destination-address> <bitcoin-amount>
+    ```
+  
+1. Obtain the signed transaction:
+
+    ```
+    ./electrum_client.py getsignedtx <userid> <a raw transaction in hex (PSBT)>
+    ```
+  
+1. Broadcast the transaction
+  
+    ```
+    ./electrum_client.py broadcast <userid> <a raw transaction in hex>
+    ```
+
+1. Verify the new bitcoin is available within the new user's wallet.
+  
+1. After testing, please send the remaining bitcoin back to the faucet site where the bitcoin originated. If you obtain an `Insufficent Funds` error then the amount you are sending doesn't have enough to include the transaction fee. See https://live.blockcypher.com/btc-testnet/ for current transaction feeds on the bitcoin testnet. 
