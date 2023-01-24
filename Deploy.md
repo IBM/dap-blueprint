@@ -663,10 +663,10 @@ The third argument is an one-time passcode which can be obtained from Google Aut
 #### Obtain the details of a transaction
 
 ```
-./dap_client.py --port 5001 tx_details chris <a row transaction in hex>
+./dap_client.py --port 5001 tx_details chris <process instance id>
 ```
 
-You should be able to see the following response.
+The process instance id can be obtained from your RHPAM server as mentioned above. You should be able to see the following response.
 
 ```
 {

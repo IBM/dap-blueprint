@@ -31,7 +31,7 @@ class TransactionDetails(Resource):
     @api.response(code=422, description='API token authorization faulure', model=authorization_failure_response_model)
     @api.doc(description='An approver obtains the user id of the owner of the master seed for transaction inputs and the psbt in a json format. The policy service will return an error if the transaction is not being assigned to the approver.')
     @oidc.accept_token(render_errors=False, require_token=True, scopes_required=['openid'])
-    @oidc.require_keycloak_role(role='approver')
+    @oidc.require_keycloak_role(role='user')
     def get(self, process_instance_id):
         res = {
             'userid': None,
@@ -65,7 +65,7 @@ class UserTransactions(Resource):
     @users_api.response(code=422, description='API token authorization faulure', model=authorization_failure_response_model)
     @users_api.doc(description='An approver obtains a list of all transactions within a specified hours with inputs from a seed owned by a specified user. An approver can check the recent history of transactions from the user.')
     @oidc.accept_token(render_errors=False, require_token=True, scopes_required=['openid'])
-    @oidc.require_keycloak_role(role='approver')
+    @oidc.require_keycloak_role(role='user')
     def get(self, userid, hours):
         psbts, transactions = approval_table.get_user_transactions(userid, hours)
         if not transactions:
