@@ -50,9 +50,9 @@ An end user can send a REST API request to DAP Blueprint through a DAP frontend 
 
 1. The transaction proposer is the endpoing for REST API requests from a DAP frontend. It authenticates a user with userid and password through Red Hat Single Sign-On (RHSSO). If the user is authorized by RHSSO, a bearer token is sent back to the DAP frontend. Other REST APIs in the transaction proposer can be called by using the bearer token. Transaction-proposer REST APIs can be found [here](https://ibm.github.io/dap-blueprint/). In addition, you can enable two-facator authentication in RHSSO. When the two-factor authentication is enabled, you can obtaine an one-time passcode through Google Authenticator or FreeOTP Authenticator. 
 
-2. The transaction proposer enqueues a request in a transaction queue on Hyper Protect DBaaS.
+1. The transaction proposer enqueues a request in a transaction queue on Hyper Protect DBaaS.
 
-3. Authorization, fraud-detection, and transaction-approval policy services dequeues a request from a transaction queue. Each policy service signs the request by using its own private key through Hyper Protect Crypto Service if the request satisfies pre-defined rules or models, and then enqueues the signed request in the transaction queue.
+1. Authorization, fraud-detection, and transaction-approval policy services dequeues a request from a transaction queue. Each policy service signs the request by using its own private key through Hyper Protect Crypto Service if the request satisfies pre-defined rules or models, and then enqueues the signed request in the transaction queue.
 
    - **Authentication policy service**: We implemented simple rules described [here](Authorization-Policy.md). When the request requires human approvals, the authentication policy service sends approval requests to approvers (sends e-mails to a [mailtrap](https://mailtrap.io/) account). Each approver can approve or reject the request through a Red Hat Process Automation Manager server which runs beside the authorization policy service. He/she can can overview a transaction in an approval request such as an amount to be sent. Further, he/she can obtain the details of the transaction through [REST APIs](https://ibm.github.io/dap-blueprint/).
    - **Fraud-detection policy service**: We implemented simple two rules. One of them rejects a transaction from a user who initiated transactions more than a threshold. The other rule rejects a transaction that tries to send bitcoins to an address that is used in the past.
@@ -60,9 +60,9 @@ An end user can send a REST API request to DAP Blueprint through a DAP frontend 
 
    When the request is approved or rejected, it is enqueued to the transaction queue. When the request is rejected, it is sent back to the transaction proposer. When the request is approved, it is processed by a signing service in Step 4.
 
-4. Signing service dequeues a request from a transaction queue. It processes the request with accessing a wallet db on Hyper Protect DBaaS and HPCS if the request is signed by all of the policy services, and then enqueues a processing result in the transaction queue.
+1. Signing service dequeues a request from a transaction queue. It processes the request with accessing a wallet db on Hyper Protect DBaaS and HPCS if the request is signed by all of the policy services, and then enqueues a processing result in the transaction queue.
 
-5. Transaction proposer dequeues a result from a transaction queue, and then sends back to a DAP frontend.
+1. Transaction proposer dequeues a result from a transaction queue, and then sends back to a DAP frontend.
 
 <a id="prerequisites"></a>
 
@@ -74,11 +74,11 @@ You need to set up the followings to build and deploy DAP Blueprint.
    
    DAP Blueprint needs billing instances on IBM Cloud. So, you need Pay as You Go (PAYG) account for IBM Cloud at least.
 
-2. API Key
+1. API Key
    
    Create an API key in your account. We assume to use a single API key for every instance due to simplicity. However, this is not recommended in production. Please use an individual API key for each instance in production.
 
-3. [Container Registry Name Space](https://cloud.ibm.com/docs/Registry)
+1. [Container Registry Name Space](https://cloud.ibm.com/docs/Registry)
    
    Create a new name space in IBM Container Registry to store your DAP Blueprint image. Please use **Dallas** region because only the Dallas region supports Docker Content Trust (DCT) which is needed to deploy Hyper Protect Virtual Server instances.
 
@@ -86,17 +86,17 @@ You need to set up the followings to build and deploy DAP Blueprint.
    
    Create a COS instance in **Dallas** region, and then create two buckets such as *dap-backup* and *wallet-backup*. These buckets are used to store the encrypted data for backup.
 
-5. [Hyper Protect Crypto Services (HPCS) Instance](https://cloud.ibm.com/docs/hs-crypto)
+1. [Hyper Protect Crypto Services (HPCS) Instance](https://cloud.ibm.com/docs/hs-crypto)
    
    Create a HPCS instance and [initialize it](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-initialize-hsm-prerequisite). After initializing your HPCS instance, you should be able to obtain the following information.
    - Public Enterprise PKCS #11 endpoint URL (hostname starting from *ep11.*)
    - Instance ID
 
-6. [Hyper Proetct DBaaS for MongoDB Certificate Authority](https://cloud.ibm.com/docs/hyper-protect-dbaas-for-mongodb?topic=hyper-protect-dbaas-for-mongodb-gettingstarted)
+1. [Hyper Proetct DBaaS for MongoDB Certificate Authority](https://cloud.ibm.com/docs/hyper-protect-dbaas-for-mongodb?topic=hyper-protect-dbaas-for-mongodb-gettingstarted)
    
    Create a Hyper Protect DBaaS (HPDBaaS) instance manually (here)[https://cloud.ibm.com/catalog/services/hyper-protect-dbaas-for-mongodb]. At this time, you can create a free instance because this is not used in DAP Blueprint. This instance is needed only for downloading a certificate authority file. After creating an instance, you can download a certificate authority file from the overview page. After downloading the file, you can delete the instance.
 
-7. [IBM Logging Instance](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se#hpcr_setup_logging)
+1. [IBM Logging Instance](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se#hpcr_setup_logging)
    
    Create an IBM loggin instance. After creating an instance, you should be able to obtain the following information.
    - Syslog server endpoint (hostname starting from *syslog.*)
@@ -104,19 +104,19 @@ You need to set up the followings to build and deploy DAP Blueprint.
    - API endpoint (hostname starting from *api.*)
    - Ingestion key
 
-8. [Red Hat Customer Portal Account](https://access.redhat.com/)
+1. [Red Hat Customer Portal Account](https://access.redhat.com/)
    
    Create an account in Red Hat Customer Portal. After creating an account, you should be able to obtain the following information.
    - Userid (your e-mail address)
    - Password
 
-9.  [mailtrap Account](https://mailtrap.io/)
+1.  [mailtrap Account](https://mailtrap.io/)
     
     Create an account in mailtrap, and then click **My Inbox**. After that, you should be able to obtain the following information from the **Credentials** tab in **SMTP Settings**. Our policy services send e-mail notifications to this SMTP server.
     - Username
     - Password    
 
-10. Docker Environment (Optional)
+1. Docker Environment (Optional)
     
     You can try to run DAP Blueprint on your laptop for test purpose. If you have a local Docker environment, you can build DAP Blueprint image and deploy it on your laptop.
 
@@ -133,13 +133,13 @@ This is a procedure to build a DAP Blueprint image in your laptop or Linux machi
    # cd dap-blueprint
    ```
 
-2. Copy an environment-variable file
+1. Copy an environment-variable file
    
    ```
    cp .env.build.template .env.build
    ```
 
-3. Fill environment variables in `.env.build`
+1. Fill environment variables in `.env.build`
    
    | Environment Variable  | Description                                                                 |
    | --------------------- | --------------------------------------------------------------------------- |
@@ -151,7 +151,7 @@ This is a procedure to build a DAP Blueprint image in your laptop or Linux machi
    | REDHAT_EMAIL          | E-mail address in your Red Hat Customer Portal Account which you created at Prerequisites 8. |
    | REDHAT_TOKEN          | Password in your Red Hat Customer Portal Account which you created at Prerequisites 8. |
 
-4. Run a build script
+1. Run a build script
    
    ```
    # ./build-docker.sh
@@ -471,7 +471,7 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
 
    You can check if the deployment succeeds in your logging instance.
 
-2. Run Signing Service
+1. Run Signing Service
    
    ```
    # ./run.sh SS False docker-build.log
@@ -480,7 +480,7 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
 
    You can skip this step when you reboot the signing service.
 
-3. Run Transaction Proposer
+1. Run Transaction Proposer
    
    ```
    # ./run.sh TP False docker-build.log
@@ -495,7 +495,7 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
    ```
    This command re-creates encrypted contract files with a correct `DAP_HOST`.
 
-4. Run Other Services
+1. Run Other Services
    
    ```
    # ./run.sh AP False docker-build.log
