@@ -78,14 +78,17 @@ echo "Storing KIE_SECRET and KIE_EXECUTION_SERVER_SECRET in COS"
 # aimee
 ./kcadm.sh create users -r rhpam -s username=aimee -s enabled=true -s email=aimee@ibm.com
 ./kcadm.sh set-password -r rhpam --username aimee --new-password ${RHPAM_APPROVER_PASSWORD}
+./kcadm.sh add-roles --uusername aimee --rolename user -r rhpam
 ./kcadm.sh add-roles --uusername aimee --rolename approver -r rhpam
 # jon
 ./kcadm.sh create users -r rhpam -s username=jon -s enabled=true -s email=jon@ibm.com
 ./kcadm.sh set-password -r rhpam --username jon --new-password ${RHPAM_APPROVER_PASSWORD}
+./kcadm.sh add-roles --uusername jon --rolename user -r rhpam
 ./kcadm.sh add-roles --uusername jon --rolename approver -r rhpam
 # katy
 ./kcadm.sh create users -r rhpam -s username=katy -s enabled=true -s email=katy@ibm.com
 ./kcadm.sh set-password -r rhpam --username katy --new-password ${RHPAM_APPROVER_PASSWORD}
+./kcadm.sh add-roles --uusername katy --rolename user -r rhpam
 ./kcadm.sh add-roles --uusername katy --rolename approver -r rhpam
 
 ### Create an OIDC client
