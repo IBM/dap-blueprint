@@ -93,7 +93,7 @@ echo "Storing KIE_SECRET and KIE_EXECUTION_SERVER_SECRET in COS"
 ./kcreg.sh config credentials --server http://localhost:8180/auth --realm rhpam --user admin --password ${RHPAM_ADMIN_PASSWORD} --client admin-cli
 
 ./kcreg.sh create -s clientId=flask -s 'redirectUris=["https://localhost:5000/*","https://localhost:5001/*","https://dap-host:5000/*","https://approval-host:5001/*"]'
-./kcreg.sh update kie -s 'redirectUris=["https://localhost:8443/business-central/*","https://rhpam-host:8443/business-central/*"]'
+./kcreg.sh update kie -s 'redirectUris=["https://localhost:8443/business-central/*","https://rhpam-host:8443/business-central/*","https://approval-host:8443/business-central/*"]'
 ./kcreg.sh update kie-execution-server -s 'redirectUris=["https://localhost:8443/kie-server/*"]'
 sleep 5
 OIDC_SECRET=`./kcreg.sh get flask | jq -r '.secret'`

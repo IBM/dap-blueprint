@@ -9,14 +9,6 @@ locals {
       "password": var.REGISTRY_PASSWORD
     }
   }
-  images = {
-    "dct" : {
-      (var.DAP_IMAGE) : {
-        "notary": var.NOTARY_URL,
-        "publicKey": var.DCT_PUBKEY
-      }
-    }
-  }
   env = {
     "type" : "env",
     "logging" : {
@@ -69,6 +61,7 @@ locals {
       "MAIL_USERNAME": var.MAIL_USERNAME,
       "MAIL_PASSWORD": var.MAIL_PASSWORD,
       "DBAAS_RESOURCE_GROUP": var.DBAAS_RESOURCE_GROUP,
+      "DBAAS_PLAN": var.DBAAS_PLAN,
       "RHSSO_ADMIN_PASSWORD": var.RHSSO_ADMIN_PASSWORD,
       "RHPAM_ADMIN_PASSWORD": var.RHPAM_ADMIN_PASSWORD,
       "RHPAM_USER_PASSWORD": var.RHPAM_USER_PASSWORD,
@@ -79,7 +72,6 @@ locals {
   }
   workload_template = {
     "type" : "workload",
-    "auths": local.auths,
-    "images": "${var.DCT_PUBKEY != "" ? local.images : {}}"
+    "auths": local.auths
   }
 }

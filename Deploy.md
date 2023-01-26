@@ -197,7 +197,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
     | RHSSO_HOST                                   | IP address of your Red Hat Single Sign-On (RHSSO) server. For local deployment, this is known after deploying a RHSSO server. So, please set 127.0.0.1 at this time. For cloud deployment, please set 10.X.Y.10. X and Y are different based on the region and zone which you choose. Please refer the address prefix [here](https://cloud.ibm.com/docs/vpc?topic=vpc-configuring-address-prefixes&locale=en). |
     | DAP_HOST                                     | IP address of your transaction proposer. For local deployment, this is known after deploying a transaction proposer. So, please set 127.0.0.1 at this time. For cloud deployment, please set 10.X.Y.23. X and Y are different based on the region and zone which you choose. Please refer the address prefix [here](https://cloud.ibm.com/docs/vpc?topic=vpc-configuring-address-prefixes&locale=en). |
     | IC_API_KEY                                   | IBM Cloud API key which you creatated at Prerequisites 2. |
-    | REGION                                       | IBM Cloud region which you want to deploy your DAP Blueprint instances (e.g., jp-tok). This is not used for local deployment. |
+    | REGION                                       | IBM Cloud region which you want to deploy your DAP Blueprint instances (e.g., jp-tok). Choose a region that supports HPVS, not all regions do. This is not used for local deployment. |
     | ZONE                                         | IBM Cloud zone which you want to deploy your DAP Blueprint instances (e.g., 1). |
     | REGISTRY_USERNAME                            | Username to login IBM Cloud. This should be `iamapikey`. |
     | REGISTRY_PASSWORD                            | IBM Cloud API key which you creatated at Prerequisites 2. |
@@ -226,8 +226,7 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
     | OLD_DEPLOY_TIME_SECRET                       | A deploy-time secret used at the previous deployment. This is needed only for key rotation. In general, please keep empty like `OLD_DEPLOY_TIME_SECRET=`. |
     | ARGON2_SALT                                  | An arbitrary string used to generate signing and encryption keys with `BUILD_TIME_SECRET` and `DEPLOY_TIME_SECRET`. |
     | DAP_IMAGE                                    | Your DAP Blueprint image name. This should be REGISTRY_URL/REGISTRY_NAMESPACE/dap-base. |
-    | NOTARY_URL                                   | Notary server URL for Docker Content Trust (DCT). When you use IBM Container Registry at Dallas, this URL should be `https://notary.us.icr.io`. This is not needed for local deployment. |
-    | DCT_PUBKEY                                   | DCT public key when you used to push your DAP Blueprint image to IBM Container Registry. This is not needed for local deployment. |
+    | HPCR_CERT                                    | File containing the contents of the latest HPVS image certificate for encrypting user data in the contract. This is not needed for local deployement. |
     | RHSSO_ADMIN_PASSWORD                         | Admin password for your RHSSO server. |
     | RHPAM_ADMIN_PASSWORD                         | Admin password for your Red Hat Process Automation Manager (RHPAM) server. |
     | RHPAM_USER_PASSWORD                          | Password for users that are registered to your RHPAM server. Currently, DAP Blueprint registers five users: alice, bob, charlie, eve, and mallory. This is a tentative setting for simplification because all of the users have the same password. In production, different passwords should be registered for each user. |
@@ -385,43 +384,55 @@ This is a procedure to build a DAP Blueprint image on [Secure Build Server](http
    }
    ```
 
-2. Save build log
+1. Save build log
    
    After [6. Wait until the build completes.](https://cloud.ibm.com/docs/hp-virtual-servers?topic=hp-virtual-servers-tutorial_secure_build_server#build_complete), save the build log by running the following command.
    ```
-   # ./build.py ./build.py log --log build --env dap-config.json > docker-build.log
-   ```
-   
-3. Obtain Docker Content Trust (DCT) public key
-   
-   ```
-   # build.py get-dct-publickey --config dap-config.json > dct-pubkey.txt
+   # ./build.py log --log build --env dap-config.json > docker-build.log
    ```
 
-4. Clone this repo
+1. Clone this repo
    
    ```
    # git clone https://github.com/IBM/dap-blueprint.git
    # cd dap-blueprint
    ```
 
-5. Copy docker-build.log to your cloned directory
+1. Copy docker-build.log to your cloned directory
    
    ```
    # cp ${SECURE_BUILD_CLI_DIR}/docker-build.log ./
    ```
 
-6. Copy an environment-variable file
+1. Copy an environment-variable file
    
    ```
    # cp .env.template .env
    ```
 
-7. Fill environment variables in `.env`
-   
-   Description of each environment variable is [here](#local-build). For NOTARY_URL and DCT_PUBKEY, please set `https://notary.us.icr.io` and the DCT public key obtained at Step 3.
+1. Fill environment variables in `.env`. Description of each environment variable is [here](#local-build).
 
-8. Create encrypted contract files
+1. Obtain the image digest and update the DAP_IMAGE environment variable to contain the image with the digest.
+
+   ```
+   # ibmcloud cr image-digests
+   ```
+
+1. Obtain the latest Hyper Protect Container Runtime region and certificate, and save the certificate associated with the latest image as a file in the terraform directory, such as `https://cloud.ibm.com/media/docs/downloads/hyper-protect-container-runtime/ibm-hyper-protect-container-runtime-1-0-s390x-7-encrypt.crt`.  Update the REGION environment variable to be the region used in the query, as all HPVS instances will be created in this particular region. Update the HPCR_CERT environment variable to be the filename containing the certificate located the terraform directory.
+
+   ```
+   # ibmcloud target -r <REGION>
+   # ibmcloud is images | grep "ibm-hyper-protect-container-runtime"
+   ```
+
+1. Initialize the terrform
+
+   ```
+   # cd terraform
+   # terraform init
+   ```
+
+1. Create encrypted contract files
    
    ```
    ./create-contract.sh False docker-build.log
@@ -450,7 +461,7 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
    
    This script outputs an IP address of this RHSSO server. The following is an example output.
    ```
-   rhsso_ip = "xxx.xxx.xxx.xxx"
+   rhsso_floating_ip = "xxx.xxx.xxx.xxx"
    ```
    Please set this IP address to an environment variable `RHSSO_HOST` in the `.env` file and then run the following command.
    ```
@@ -722,7 +733,7 @@ export ELECTRUM_DATA=/data
 #### Cerate a wallet
 
 ```
-./electrum_client.py create_dap <userid (alice, bob, or charlie)> <password> -seedid <seed id created using dap_client.py from above)
+./electrum_client.py create_dap <userid (alice, bob, or charlie)> <password> --seedid <seed id created using dap_client.py from above)
 ```
 
 Currently, only three userids (alice, bob, and charlie) can be used with a password `passw0rd` (0 is zero). The password is used for authentication to transaction proposer. 
@@ -760,7 +771,7 @@ Currently, only three userids (alice, bob, and charlie) can be used with a passw
 #### Broadcast a signed transaction
 
 ```
-./electrum_client.py broadcast <a raw transaction in hex>
+./electrum_client.py broadcast <userid> <a raw transaction in hex>
 ```
   
 #### Funding and transferring
@@ -798,4 +809,4 @@ After creating a user wallet and obtaining a new bitcoin address, you can use th
 
 1. Verify the new bitcoin is available within the new user's wallet.
   
-1. After testing, please send the remaining bitcoin back to the faucet site where the bitcoin originated. If you obtain an `Insufficent Funds` error then the amount you are sending doesn't have enough to include the transaction fee. See https://live.blockcypher.com/btc-testnet/ for current transaction feeds on the bitcoin testnet. 
+1. After testing, please send the remaining bitcoin back to the faucet site where the bitcoin originated. To return all funds from the wallet to an address, use the `!` as the amount.
