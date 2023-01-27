@@ -31,7 +31,7 @@ locals {
 # We use a temporary, random keypair to execute the signature. This could also be overriden.
 resource "hpcr_contract_encrypted" "transaction_approval_policy_service_contract" {
   contract = local.transaction_approval_policy_service_contract
-  cert = file(var.HPCR_CERT)
+  #cert = file(var.HPCR_CERT)
 }
 
 resource "local_file" "transaction_approval_policy_service_contract" {

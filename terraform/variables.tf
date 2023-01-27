@@ -21,12 +21,6 @@ variable REGISTRY_PASSWORD {
   description = "Password to access your registry"
 }
 
-variable HPCR_CERT {
-  type        = string
-  description = "Public key for Hyper Protect Crypto Runtime to encrypt contract user data."
-  default     = "ibm-hyper-protect-container-runtime-1-0-s390x-7-encrypt.crt"
-}
-
 variable DAP_IMAGE {
   type        = string
   description = "DAP image name."

@@ -226,7 +226,6 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
     | OLD_DEPLOY_TIME_SECRET                       | A deploy-time secret used at the previous deployment. This is needed only for key rotation. In general, please keep empty like `OLD_DEPLOY_TIME_SECRET=`. |
     | ARGON2_SALT                                  | An arbitrary string used to generate signing and encryption keys with `BUILD_TIME_SECRET` and `DEPLOY_TIME_SECRET`. |
     | DAP_IMAGE                                    | Your DAP Blueprint image name. This should be REGISTRY_URL/REGISTRY_NAMESPACE/dap-base. |
-    | HPCR_CERT                                    | File containing the contents of the latest HPVS image certificate for encrypting user data in the contract. This is not needed for local deployement. |
     | RHSSO_ADMIN_PASSWORD                         | Admin password for your RHSSO server. |
     | RHPAM_ADMIN_PASSWORD                         | Admin password for your Red Hat Process Automation Manager (RHPAM) server. |
     | RHPAM_USER_PASSWORD                          | Password for users that are registered to your RHPAM server. Currently, DAP Blueprint registers five users: alice, bob, charlie, eve, and mallory. This is a tentative setting for simplification because all of the users have the same password. In production, different passwords should be registered for each user. |
@@ -418,13 +417,6 @@ This is a procedure to build a DAP Blueprint image on [Secure Build Server](http
    # ibmcloud cr image-digests
    ```
 
-1. Obtain the latest Hyper Protect Container Runtime region and certificate, and save the certificate associated with the latest image as a file in the terraform directory, such as `https://cloud.ibm.com/media/docs/downloads/hyper-protect-container-runtime/ibm-hyper-protect-container-runtime-1-0-s390x-7-encrypt.crt`.  Update the REGION environment variable to be the region used in the query, as all HPVS instances will be created in this particular region. Update the HPCR_CERT environment variable to be the filename containing the certificate located the terraform directory.
-
-   ```
-   # ibmcloud target -r <REGION>
-   # ibmcloud is images | grep "ibm-hyper-protect-container-runtime"
-   ```
-
 1. Initialize the terrform
 
    ```
@@ -470,6 +462,13 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
    This command re-creates encrypted contract files with a correct `RHSSO_HOST`.
 
    You can check if the deployment succeeds in your logging instance.
+
+   Note: if user data decryption fails during the startup of the VSI, verify the terraform HPCR plugin has the latest version for the HPCR image in the region `https://github.com/ibm-hyper-protect/terraform-provider-hpcr/tree/main/data`.
+
+   ```
+   # ibmcloud target -r <REGION>
+   # ibmcloud is images | grep "ibm-hyper-protect-container-runtime"
+   ```
 
 1. Run Signing Service
    
