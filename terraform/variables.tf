@@ -21,18 +21,6 @@ variable REGISTRY_PASSWORD {
   description = "Password to access your registry"
 }
 
-variable NOTARY_URL {
-  type        = string
-  description = "URL of your notary server"
-  default     = ""
-}
-
-variable DCT_PUBKEY {
-  type        = string
-  description = "Public key for docker content trust."
-  default     = ""
-}
-
 variable DAP_IMAGE {
   type        = string
   description = "DAP image name."
