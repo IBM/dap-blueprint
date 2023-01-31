@@ -15,7 +15,7 @@ def run(dump=False):
         with app.test_request_context():
             print(json.dumps(api.__schema__, indent=4))
     else:
-        port = 5000
+        port = 5002
         if 'SIGNING_SERVICE_PORT' in os.environ:
             port = int(os.environ['SIGNING_SERVICE_PORT'])
         # app.run(ssl_context='adhoc', debug=False, host='0.0.0.0', port=port)

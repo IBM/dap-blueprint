@@ -17,7 +17,7 @@
       - [Obtain a bearer token](#obtain-a-bearer-token)
       - [Obtain a bearer token with two-factor authentication](#obtain-a-bearer-token-with-two-factor-authentication)
       - [Obtain public keys of policy services](#obtain-public-keys-of-policy-services)
-      - [Create a master seed](#create-a-master-seed)
+      - [Create a master seed for users](#create-a-master-seed-for-users)
       - [Derive a public key](#derive-a-public-key)
       - [Sign a transaction](#sign-a-transaction)
     - [Approval process in Red Hat Process Automation Manager (RHPAM)](#approval-process-in-red-hat-process-automation-manager-rhpam)
@@ -232,7 +232,6 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
     | RHPAM_APPROVER_PASSWORD                      | Password for approvers that are registered to your RHPAM server. Currently, DAP Blueprint registers three approvers: aimee, jon, katy. This is a tentative setting for simplification because all of the approvers have the same password. In production, different passwords should be registered for each approver. |
     | TRANSACTION_PROPOSER_PORT                    | Port of your transaction proposer. |
     | APPROVAL_SERVER_PORT                         | Port of your approval server. |
-    | SIGNING_SERVICE_PORT                         | Port of your signing service. |
     | RHSSO_SSH_PORT                               | SSH port of your RHSSO container. This is only for test purpose. |
     | TRANSACTION_PROPOSER_SSH_PORT                | SSH port of your transaction proposer container. This is only for test purpose. |
     | AUTHORIZATION_POLICY_SERVICE_SSH_PORT        | SSH port of your authorization policy service container. This is only for test purpose. |
@@ -242,27 +241,27 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
 
     You can see multiple environment variables that have IBM Cloud API key. For simplicity, we assumed to set the same API key for the environment variables. From a security perspective, you should create different API keys for each instance (service) and set them to the environment variables.
 
-1. Run Red Hat Single Sign-On (RHSSO) Server
+2. Run Red Hat Single Sign-On (RHSSO) Server
    
    ```
    # ./run-local.sh RHSSO
    ```
 
-1. Inspect the RHSSO running container to find the `IPAddress` value and set the `RHSSO_HOST` environment variable in your `.env` file.
+3. Inspect the RHSSO running container to find the `IPAddress` value and set the `RHSSO_HOST` environment variable in your `.env` file.
 
    ```
    # docker ps
    # docker inspect <Your RHSSO container name or ID>
    ```
 
-1. Before continuing, check if the initialization of RHSSO finishes by entering to the RHSSO container and check the `/dap-logs/rhsso-init.out` log contains the message `FRONTEND_URL=https://rhsso-host:8543/auth` which signifies the initialization of RHSSO has finished. Please note that other containers will fail to start if you do not wait to see that log message.
+4. Before continuing, check if the initialization of RHSSO finishes by entering to the RHSSO container and check the `/dap-logs/rhsso-init.out` log contains the message `FRONTEND_URL=https://rhsso-host:8543/auth` which signifies the initialization of RHSSO has finished. Please note that other containers will fail to start if you do not wait to see that log message.
 
    ```
    # docker ps
    # docker exec fdfe31dea63a cat -- /dap-logs/rhsso-init.out
    ```
 
-1. Run Signing Service
+5. Run Signing Service
    
    ```
    # ./run-local.sh SS False docker-build.log
@@ -271,22 +270,22 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
 
    When you reboot the signing service, you can skip this step.
 
-1. Before continuing, check on your IBM cloud resource dashboard that the two Hyper Protect Mongo Databases are created and status set to Active. Other containers will fail to stasrt if you do not wait until the databases are ready for transactions.
+6. Before continuing, check on your IBM cloud resource dashboard that the two Hyper Protect Mongo Databases are created and status set to Active. Other containers will fail to stasrt if you do not wait until the databases are ready for transactions.
 
-1. Run Transaction Proposer
+7. Run Transaction Proposer
    
    ```
    # ./run-local.sh TP False docker-build.log
    ```
    
-1. Inspect the transaction proposer running container to find the `IPAddress` value and set the `DAP_HOST` environment variable in your `.env` file.
+8. Inspect the transaction proposer running container to find the `IPAddress` value and set the `DAP_HOST` environment variable in your `.env` file.
 
    ```
    # docker ps
    # docker inspect <Your transaction proposer container name or ID>
    ```
 
-1. Run Other Services
+9. Run Other Services
    
    ```
    # ./run-local.sh AP False docker-build.log
