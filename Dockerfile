@@ -33,7 +33,7 @@ RUN apt-get update && \
     pip3 install --upgrade distlib && \
     pip3 install wheel
 
-RUN pip3 install flask==1.1.2 flask_restx flask_sqlalchemy flask_jwt_extended pymongo==3.12.2 asn1==2.2.0 cython ibm-cos-sdk flask-mail==0.9.1 flask_cors certifi requests pyyaml dnspython pyaes ecdsa qrcode aiorpcx aiohttp aiohttp_socks bitstring jsonrpcclient==3.3.5 jsonrpcserver==4.2.0 jinja2==3.0.3 werkzeug==2.0.3
+RUN pip3 install flask==1.1.2 flask_restx flask_sqlalchemy flask_jwt_extended pymongo==3.12.2 asn1==2.2.0 cython ibm-cos-sdk flask-mail==0.9.1 flask_cors certifi requests pyyaml dnspython pyaes ecdsa qrcode aiorpcx aiohttp aiohttp_socks bitstring jsonrpcclient==3.3.5 jsonrpcserver==4.2.0 jinja2==3.0.3 werkzeug==2.0.3 SQLAlchemy==1.4.46
 RUN pip3 install cryptography==3.3.2 pycryptodome argon2 pycryptodomex pyopenssl
 RUN pip3 install grpcio===1.48.1 grpcio-tools==1.48.1
 RUN pip3 install lxml
