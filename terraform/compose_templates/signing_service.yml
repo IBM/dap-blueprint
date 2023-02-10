@@ -20,7 +20,7 @@ services:
       - dap-network
     ports:
       - "${SIGNING_SERVICE_SSH_PORT}:22"
-      - "${SIGNING_SERVICE_PORT}:5000"
+      - "${SIGNING_SERVICE_PORT}:${SIGNING_SERVICE_PORT}"
     environment:
       ZHSM: ${ZHSM}
       ZHSM_CREDENTIAL: ${ZHSM_CREDENTIAL}
