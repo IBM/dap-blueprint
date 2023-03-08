@@ -5,16 +5,20 @@
 import uuid
 import dbaas, dap_consts
 
-def _check_documents(docs):
+def _check_documents(docs, query):
     doc = None
+    isServiceStatusQuery = 'type' in query and '$eq' in query['type'] and query['type']['$eq'] == dap_consts.SERVICE_STATUS
     if docs is None or len(docs) == 0:
         status = 'No response from backend services'
         code = 500
-    elif len(docs) > 1:
+    elif len(docs) > 1 and not isServiceStatusQuery:
         status = 'Multiple responses from backend services'
         code = 500
     else:
-        doc = docs[0]
+        if len(docs) > 1:
+            doc = docs[-1]
+        else:
+            doc = docs[0]
         status = doc['status']
         if status != 'ok' and status != 'fail':
             code = 500
@@ -36,7 +40,7 @@ def _check_document(doc):
 
 def send_request(txqueue_client, doc, query):
     dbaas.enqueue(txqueue_client, 'txqueue', doc)
-    return _check_documents(dbaas.poll(txqueue_client, 'txqueue', query))
+    return _check_documents(dbaas.poll(txqueue_client, 'txqueue', query), query)
 
 def enqueue(txqueue_client, doc):
     dbaas.enqueue(txqueue_client, 'txqueue', doc)
@@ -46,7 +50,7 @@ def dequeue(txqueue_client, query):
     return _check_document(dbaas.dequeue(txqueue_client, 'txqueue', query))
 
 def poll(txqueue_client, query, wait_infinitely=True):
-    return _check_documents(dbaas.poll(txqueue_client, 'txqueue', query, wait_infinitely=wait_infinitely))
+    return _check_documents(dbaas.poll(txqueue_client, 'txqueue', query, wait_infinitely=wait_infinitely), query)
 
 def kill_all_sessions(txqueue_client):
     dbaas.kill_all_sessions(txqueue_client)
