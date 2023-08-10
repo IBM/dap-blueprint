@@ -10,6 +10,7 @@ RUN apt-get update && \
     git clone https://github.com/ansible-middleware/redhat-csp-download.git && \
     mkdir /redhat-packages
 WORKDIR /redhat-csp-download
+ENV PIP_BREAK_SYSTEM_PACKAGES 1
 RUN /usr/bin/python3 -m pip install -r requirements.txt && \
     ansible-galaxy collection install middleware_automation.redhat_csp_download
 ADD /redhat/csp-download.sh /redhat-csp-download/
