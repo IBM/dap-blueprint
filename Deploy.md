@@ -771,8 +771,16 @@ Currently, only three userids (alice, bob, and charlie) can be used with a passw
 ```
 ./electrum_client.py broadcast <userid> <a raw transaction in hex>
 ```
-  
-#### Funding and transferring
+ 
+### Electrum UI
+
+The Electrum UI can be used instead of the CLI interface to do some simple operations such as receiving and sending bitcoin. You can run multiple instances at the same time for different wallets on different vnc ports. 
+
+```
+./run-electrum-gui.sh <vnc-port> <vnc-password>
+```
+ 
+### Funding and transferring
 
 After creating a user wallet and obtaining a new bitcoin address, you can use the address to obtain some test bitcoin from one of the following bitcoin faucet sites.
 

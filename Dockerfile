@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM python:3.8-slim as CSP
+FROM python:3.10-slim as CSP
 
 RUN apt-get update && \
     rm -rf /usr/local/bin/python3 && \
@@ -10,6 +10,7 @@ RUN apt-get update && \
     git clone https://github.com/ansible-middleware/redhat-csp-download.git && \
     mkdir /redhat-packages
 WORKDIR /redhat-csp-download
+ENV PIP_BREAK_SYSTEM_PACKAGES 1
 RUN /usr/bin/python3 -m pip install -r requirements.txt && \
     ansible-galaxy collection install middleware_automation.redhat_csp_download
 ADD /redhat/csp-download.sh /redhat-csp-download/
@@ -17,30 +18,29 @@ ARG REDHAT_EMAIL
 ARG REDHAT_TOKEN
 RUN ./csp-download.sh ${REDHAT_EMAIL} ${REDHAT_TOKEN}
 
-FROM ubuntu:18.04 as PYTHON_BUILD
+FROM ubuntu:22.04 as PYTHON_BUILD
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ARG GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential libgmp3-dev libffi-dev jq libssl-dev libxml2-dev libxslt-dev python3.8-dev software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get install -y --no-install-recommends python3.8 python3-pip python3-setuptools python3.8-distutils && \
-    cd /usr/bin/ && rm -rf python3 && ln -s python3.8 python3 && \
+    apt-get install -y --no-install-recommends build-essential libgmp3-dev libffi-dev jq libssl-dev libxml2-dev libxslt-dev python3.10-dev software-properties-common && \
+    apt-get install -y --no-install-recommends python3.10 python3-pip python3-setuptools python3.10-distutils && \
+    cd /usr/bin/ && rm -rf python3 && ln -s python3.10 python3 && \
     python3 -m pip install --upgrade pip==21.2.4 && \
-    pip3 install --upgrade setuptools==57.5.0 && \
     pip3 install --upgrade distlib && \
     pip3 install wheel
 
 RUN pip3 install flask==1.1.2 flask_restx flask_sqlalchemy flask_jwt_extended pymongo==3.12.2 asn1==2.2.0 cython ibm-cos-sdk flask-mail==0.9.1 flask_cors certifi requests pyyaml dnspython pyaes ecdsa qrcode aiorpcx aiohttp aiohttp_socks bitstring jsonrpcclient==3.3.5 jsonrpcserver==4.2.0 jinja2==3.0.3 werkzeug==2.0.3 SQLAlchemy==1.4.46
-RUN pip3 install cryptography==3.3.2 pycryptodome argon2 pycryptodomex pyopenssl
+ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
+RUN pip3 install cryptography==3.4.8 pycryptodome argon2 pycryptodomex pyopenssl
 RUN pip3 install grpcio===1.48.1 grpcio-tools==1.48.1
 RUN pip3 install lxml
 RUN pip3 uninstall -y itsdangerous && \
     pip3 install itsdangerous==2.0.0
 
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
@@ -49,16 +49,15 @@ ARG GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git curl procps less wget unzip jq software-properties-common openssh-server patch libgmp3-dev libffi-dev libssl-dev libxml2-dev libxslt-dev && \
     mkdir /var/run/sshd && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get install -y --no-install-recommends python3.8 python3-pip python3-setuptools python3.8-distutils && \
-    cd /usr/bin/ && rm -rf python3 && ln -s python3.8 python3 && \
+    apt-get install -y --no-install-recommends python3.10 python3-pip python3-setuptools python3.10-distutils x11vnc xvfb python3-pyqt5 && \
+    cd /usr/bin/ && rm -rf python3 && ln -s python3.10 python3 && \
     python3 -m pip install --upgrade pip==21.2.4 && \
     pip3 install --upgrade setuptools==57.5.0 && \
     pip3 install --upgrade distlib && \
     pip3 install wheel && \
     pip3 install supervisor
 
-COPY --from=PYTHON_BUILD /usr/local/lib/python3.8/dist-packages /usr/local/lib/python3.8/dist-packages
+COPY --from=PYTHON_BUILD /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
 
 RUN mkdir /git
 WORKDIR /git

@@ -15,6 +15,12 @@ if [ ! -d /data ]; then
     mkdir /data
 fi
 
+if [ ${DAP_SERVICE} == ELECTRUMGUI ]; then
+    cd /git/dap-blueprint/DigitalAssets-Electrum
+    sh -c './start_gui.sh'
+    exit 0
+fi
+
 if [ ${DAP_SERVICE} == ELECTRUM ]; then
     cp supervisord-${DAP_SERVICE,,}.conf ${SUPERVISORD_CONF}
     /usr/local/bin/supervisord
