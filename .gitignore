@@ -17,5 +17,9 @@ terraform/authorization_policy_service
 terraform/fraud_detection_policy_service
 terraform/transaction_approval_policy_service
 terraform/signing_service
+terraform/txqueue
+terraform/walletdb
 *.egg-info
 electrum-data/
+images/*.bkp
+images/*.dtmp

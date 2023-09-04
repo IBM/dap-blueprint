@@ -6,53 +6,138 @@
 
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
-import os, argparse, json
+import os, argparse, json, base64
+import dap_cos, dap_consts, dap_crypto
 from pprint import pprint
 
-def get_client(hosts, cafile, replicaset, user, password):
+def get_client(host, port, cafile, certkeyfile, replicaset, user, password):
     if not os.path.exists(cafile):
         print('CA file ' + str(cafile) + ' does not exist')
         return None, None
 
-    url = 'mongodb://' + hosts
+    if not os.path.exists(certkeyfile):
+        print('Client certificate key file ' + str(certkeyfile) + ' does not exist')
+        return None, None
+
+    url = 'mongodb://' + host + ':' + port,
     return MongoClient(url,
                        tls = True,
                        tlsCAFile=cafile,
+                       tlsCertificateKeyFile=certkeyfile,
                        replicaset=replicaset,
                        username=user,
                        password=password,
                        authSource='admin',
-                       authMechanism='SCRAM-SHA-256')
+                       directConnection=True)
+#                       authMechanism='SCRAM-SHA-256')
+
+def __get_tls_file_paths(name):
+    if name == dap_consts.BACKUP_WALLETDB_INFO:
+        if 'WALLETDB_CERT_DIR' not in os.environ:
+            raise Exception('WALLETDB_CERT_DIR environment variable is not set')
+        cert_dir = os.environ['WALLETDB_CERT_DIR']
+    elif name == dap_consts.BACKUP_TXQUEUE_INFO:
+        if 'TXQUEUE_CERT_DIR' not in os.environ:
+            raise Exception('TXQUEUE_CERT_DIR environment variable is not set')
+        cert_dir = os.environ['TXQUEUE_CERT_DIR']
+    else:
+        raise Exception('DBaaS info name should be walletdb or txqueue')
+
+    cafile = os.path.join(cert_dir, 'root-ca.pem')
+    certkeyfile = os.path.join(cert_dir, 'mongo-client.pem')
+    if not os.path.exists(cert_dir):
+        os.makedirs(cert_dir)
+
+    return cafile, certkeyfile
+
+def __load_tls_files(name):
+    cafile, certkeyfile = __get_tls_file_paths(name)
+
+    if not os.path.exists(cafile):
+        raise Exception('{} does not exist'.format(cafile))
+    if not os.path.exists(certkeyfile):
+        raise Exception('{} does not exist'.format(certkeyfile))
+
+    root_ca = None
+    with open(cafile) as __cafile:
+        root_ca = bytes(__cafile.read(), 'utf-8')
+        root_ca = str(base64.b64encode(root_ca), 'utf-8')
+
+    certkey = None
+    with open(certkeyfile) as __certkeyfile:
+        certkey = bytes(__certkeyfile.read(), 'utf-8')
+        certkey = str(base64.b64encode(certkey), 'utf-8')
+
+    return root_ca, certkey
+
+def __create_dbaas_tls_files(name):
+    cafile, certkeyfile = __get_tls_file_paths(name)
+
+    key1, key2 = dap_crypto.derive_common_keys()
+    cos_client = dap_cos.create_cos_client('DBaaS')
+    dbaas_info = json.loads(dap_cos.get_and_decrypt_backup_from_cos(name, key1, key2, cos_client))
+
+    root_ca = str(base64.b64decode(dbaas_info['ROOT_CA']), 'utf-8')
+    with open(cafile, 'w') as file:
+        file.write(root_ca)
+
+    certkey = str(base64.b64decode(dbaas_info['CLIENT_CERT_KEY']), 'utf-8')
+    with open(certkeyfile, 'w') as file:
+        file.write(certkey)
+
+# This function should be called only inside a DBaaS container.
+# WALLETDB_PASSWORD and TXQUEUE_PASSWORD are set by a MongoDB initializer only inside a DBaaS container.
+def __create_dbaas_info_from_envs(name, password):
+    if name == 'walletdb':
+        host = os.environ['WALLETDB_HOST']
+        port = os.environ['WALLETDB_PORT']
+    elif name == 'txqueue':
+        host = os.environ['TXQUEUE_HOST']
+        port = os.environ['TXQUEUE_PORT']
+    else:
+        raise Exception('Unknown instance ' + name)
+
+    root_ca, client_cert_key = __load_tls_files(name)
+
+    dbaas_info = {
+                'NAME': name,
+                'HOST': host,
+                'PORT': port,
+                'ROOT_CA': root_ca,
+                'CLIENT_CERT_KEY': client_cert_key,
+                'REPLICASET': name,
+                'USER': 'admin',
+                'PASSWORD': password
+    }
+
+    return dbaas_info    
+
+def backup_dbaas_info(name, password):
+    dbaas_info = __create_dbaas_info_from_envs(name, password)
+    key1, key2 = dap_crypto.derive_common_keys()
+    cos_client = dap_cos.create_cos_client('DBaaS')
+    dap_cos.encrypt_and_backup_to_cos(name, json.dumps(dbaas_info), key1, key2, cos_client)
 
 def get_client_from_info(dbaas_info):
+    cafile, certkeyfile = __get_tls_file_paths(dbaas_info['NAME'])
+
+    if not os.path.exists(cafile):
+        raise Exception('{} does not exist'.format(cafile))
+    if not os.path.exists(certkeyfile):
+        raise Exception('{} does not exist'.format(certkeyfile))
+
     return get_client(
-        hosts=dbaas_info['HOSTS'],
-        cafile=dbaas_info['CA_FILE'],
-        replicaset=dbaas_info['REPLICA_SET'],
+        host=dbaas_info['HOST'],
+        port=dbaas_info['PORT'],
+        cafile=cafile,
+        certkeyfile=certkeyfile,
+        replicaset=dbaas_info['REPLICASET'],
         user=dbaas_info['USER'],
         password=dbaas_info['PASSWORD']
     )
 
-def get_client_from_envs(instance):
-    if instance == 'walletdb':
-        hosts = os.environ['WALLETDB_HOSTS']
-        password = os.environ['WALLETDB_PASSWORD']
-        replicaset = os.environ['WALLETDB_REPLICASET']
-    elif instance == 'txqueue':
-        hosts = os.environ['TXQUEUE_HOSTS']
-        password = os.environ['TXQUEUE_PASSWORD']
-        replicaset = os.environ['TXQUEUE_REPLICASET']
-    elif instance == 'test':
-        hosts = os.environ['DBAAS_HOSTS']
-        password = os.environ['DBAAS_PASSWORD']
-    else:
-        raise Exception('Unknown instance ' + instance)
-    return get_client(
-        hosts=hosts,
-        cafile=os.environ['DBAAS_CA_FILE'],
-        replicaset=replicaset,
-        user='admin',
-        password=password)
+def get_client_from_envs(name, password):
+    return get_client_from_info(__create_dbaas_info_from_envs(name, password))
 
 def get_db(client, name):
     return client[name]
@@ -71,7 +156,7 @@ def list_cols(client, name):
 
 def enqueue(client, name, doc):
     queue = get_col(client, name)
-    queue.insert(doc)
+    queue.insert_one(doc)
     return doc
 
 def dequeue(client, name, query):
@@ -213,11 +298,17 @@ def update_password_(client, args):
 def kill_all_sessions_(client, args):
     kill_all_sessions(client)
 
+def backup_dbaas_info_(client, args):
+    backup_dbaas_info(args.name, args.password)
+
+def create_dbaas_tls_files_(args):
+    __create_dbaas_tls_files(args.name)
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--instance', default='txqueue')
     parser.add_argument('--name', default='txqueue')
+    parser.add_argument('--password')
     subparsers = parser.add_subparsers(title='commands')
 
     enqueue_parser = subparsers.add_parser('enqueue', help='Enqueue a document')
@@ -268,9 +359,18 @@ if __name__ == '__main__':
     kill_all_sessions_parser = subparsers.add_parser('kill_all_sessions', help='Kill all sessions')
     kill_all_sessions_parser.set_defaults(func=kill_all_sessions_)
 
+    backup_dbaas_info_parser = subparsers.add_parser('backup_dbaas_info', help='Backup dbaas info')
+    backup_dbaas_info_parser.set_defaults(func=backup_dbaas_info_)
+
+    create_dbaas_tls_files_parser = subparsers.add_parser('create_dbaas_tls_files', help='Create TLS files for dbaas')
+    create_dbaas_tls_files_parser.set_defaults(func=create_dbaas_tls_files_)
+
     args = parser.parse_args()
-    client = get_client_from_envs(args.instance)
     if hasattr(args, 'func'):
-        args.func(client, args)
+        if args.func == create_dbaas_tls_files_:
+            args.func(args)
+        else:
+            client = get_client_from_envs(args.name, args.password)
+            args.func(client, args)
     else:
         parser.parse_args('-h')

@@ -63,6 +63,18 @@ elif [ ${SERVICE} == SS ]; then
     docker-compose down
     docker-compose up -d
     popd > /dev/null
+elif [ ${SERVICE} == TXQUEUE ]; then
+    cp .env.local terraform/txqueue/.env
+    pushd terraform/txqueue > /dev/null
+    docker-compose down
+    docker-compose up -d
+    popd > /dev/null
+elif [ ${SERVICE} == WALLETDB ]; then
+    cp .env.local terraform/walletdb/.env
+    pushd terraform/walletdb > /dev/null
+    docker-compose down
+    docker-compose up -d
+    popd > /dev/null
 else
     WORKLOADS="transaction_proposer signing_service authorization_policy_service fraud_detection_policy_service transaction_approval_policy_service"
     for WORKLOAD in ${WORKLOADS}

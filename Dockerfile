@@ -18,6 +18,51 @@ ARG REDHAT_EMAIL
 ARG REDHAT_TOKEN
 RUN ./csp-download.sh ${REDHAT_EMAIL} ${REDHAT_TOKEN}
 
+FROM ubuntu:22.04 as MONGO
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
+ARG GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
+ENV JSYAML_VERSION 3.13.1
+ENV GOSU_VERSION 1.16
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git build-essential libcurl4-openssl-dev liblzma-dev libssl-dev clang wget && \
+    apt-get install -y --no-install-recommends python3.10 python3-pip python3-setuptools python3.10-distutils python-dev-is-python3 && \
+    python3 -m pip install --upgrade pip==21.2.4 && \
+    pip3 install --upgrade distlib && \
+    pip3 install wheel && \
+    mkdir /git && \
+    cd /git && \
+    git clone -b r7.0.1 https://github.com/mongodb/mongo.git && \
+    git clone https://github.com/docker-library/mongo.git docker-mongo && \
+    wget -O /js-yaml.js "https://github.com/nodeca/js-yaml/raw/${JSYAML_VERSION}/dist/js-yaml.js"
+
+ADD mongo-platform.req /git/mongo/etc/pip/components/platform.req
+
+WORKDIR /git/mongo
+RUN python3 -m pip install -r etc/pip/compile-requirements.txt
+RUN python3 buildscripts/scons.py install-devcore --disable-warnings-as-errors --linker=gold --separate-debug=on -s
+
+RUN set -eux && \
+    savedAptMark="$(apt-mark showmanual)" && \
+    rm -rf /var/lib/apt/lists/* && \
+    dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" && \
+    wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" && \
+    wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" && \
+    export GNUPGHOME="$(mktemp -d)" && \
+    gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && \
+    gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu && \
+    gpgconf --kill all && \
+    rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc && \
+    apt-mark auto '.*' > /dev/null && \
+    -z "$savedAptMark" ] || apt-mark manual $savedAptMark && \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
+    chmod +x /usr/local/bin/gosu && \
+    gosu --version && \
+    gosu nobody true
+
 FROM ubuntu:22.04 as PYTHON_BUILD
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -47,7 +92,7 @@ ENV PYTHONUNBUFFERED=1
 ARG GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git curl procps less wget unzip jq software-properties-common openssh-server patch libgmp3-dev libffi-dev libssl-dev libxml2-dev libxslt-dev && \
+    apt-get install -y --no-install-recommends git curl procps less wget unzip jq software-properties-common openssh-server patch libgmp3-dev libffi-dev libssl-dev libxml2-dev libxslt-dev ca-certificates gnupg libcurl4-openssl-dev && \
     mkdir /var/run/sshd && \
     apt-get install -y --no-install-recommends python3.10 python3-pip python3-setuptools python3.10-distutils x11vnc xvfb python3-pyqt5 && \
     cd /usr/bin/ && rm -rf python3 && ln -s python3.10 python3 && \
@@ -120,6 +165,19 @@ RUN mkdir -p /git/Authorization_Policy.git/refs && \
 RUN rm -rf /redhat && \
     rm -rf /redhat-packages
 
+### Set up mongo
+COPY --from=MONGO /git/mongo/build/install/bin/mongod /usr/bin/mongod
+COPY --from=MONGO /git/mongo/build/install/bin/mongo /usr/bin/mongo
+COPY --from=MONGO /usr/local/bin/gosu /usr/local/bin/gosu
+COPY --from=MONGO /git/docker-mongo/docker-entrypoint.sh /usr/local/bin/mongo-entrypoint.sh
+COPY --from=MONGO /js-yaml.js /js-yaml.js
+RUN groupadd -g 999 mongodb && \
+    useradd -g 999 -u 999 -m mongodb && \
+    mkdir -p /data/configdb && \
+    mkdir -p /data/db
+
+RUN apt-get install -y emacs
+
 ### Add contents without git clone to ease development
 WORKDIR /git
 RUN mkdir -p dap-blueprint
@@ -170,3 +228,4 @@ RUN mkdir -p secrets && \
 
 WORKDIR /git/dap-blueprint/entrypoints
 ENTRYPOINT ["./entrypoint.sh"]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
