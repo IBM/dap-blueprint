@@ -2,9 +2,11 @@
 
 if [ ${DAP_SERVICE} = TXQUEUE ]; then
     HOST=${TXQUEUE_HOST}
+    PORT=${TXQUEUE_PORT}
     CERT_DIR=${TXQUEUE_CERT_DIR}
 elif [ ${DAP_SERVICE} = WALLETDB ]; then
     HOST=${WALLETDB_HOST}
+    PORT=${WALLETDB_PORT}
     CERT_DIR=${WALLETDB_CERT_DIR}
 fi
 SIZE=2048
@@ -56,4 +58,4 @@ export MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
 
 mongo-entrypoint.sh --config /etc/mongod.conf --logpath /dap-logs/mongod.log
 
-mongo --host ${HOST} -u admin -p ${MONGO_PASSWORD} --authenticationDatabase admin --tls --tlsCAFile /mongo-cert/root-ca.pem --tlsCertificateKeyFile /mongo-cert/mongo-client.pem admin --eval 'rs.initiate()'
+mongo --host ${HOST} --port ${PORT} -u admin -p ${MONGO_PASSWORD} --authenticationDatabase admin --tls --tlsCAFile /mongo-cert/root-ca.pem --tlsCertificateKeyFile /mongo-cert/mongo-client.pem admin --eval 'rs.initiate()'

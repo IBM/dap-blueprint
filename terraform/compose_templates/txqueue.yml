@@ -1,7 +1,7 @@
 version: '2.4'
 
 x-images:
-  - &dap-base           DAP_IMAGE
+  - &dap-base           MONGO_IMAGE
 
 networks:
   dap-network:

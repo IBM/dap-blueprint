@@ -18,4 +18,5 @@ do
     rm -rf ${WORKLOAD}
     mkdir -p ${WORKLOAD}
     sed ${DELETE_LINES} -e "s/DAP_IMAGE/${TF_VAR_DAP_IMAGE//\//\\/}/g" -e "s/DOCKER_NETWORK_EXTERNAL/${DOCKER_NETWORK_EXTERNAL}/g" ./compose_templates/${WORKLOAD}.yml > ./${WORKLOAD}/docker-compose.yml
+    sed ${DELETE_LINES} -e "s/MONGO_IMAGE/${TF_VAR_MONGO_IMAGE//\//\\/}/g" -e "s/DOCKER_NETWORK_EXTERNAL/${DOCKER_NETWORK_EXTERNAL}/g" ./compose_templates/${WORKLOAD}.yml > ./${WORKLOAD}/docker-compose.yml
 done

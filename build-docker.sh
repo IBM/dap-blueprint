@@ -15,3 +15,6 @@ ARGS="${ARGS} --build-arg DBAAS_CA=""${DBAAS_CA}"
 
 docker build --progress=plain -t dap-base ${ARGS} -f Dockerfile . 2>&1 | tee docker-build.log
 docker tag dap-base ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/dap-base
+
+docker build --progress=plain -t dap-mongo ${ARGS} -f Dockerfile.mongo . 2>&1 | tee mongo-build.log
+docker tag dap-mongo ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/dap-mongo
