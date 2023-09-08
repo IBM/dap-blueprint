@@ -17,6 +17,9 @@ for WORKLOAD in ${WORKLOADS}
 do
     rm -rf ${WORKLOAD}
     mkdir -p ${WORKLOAD}
-    sed ${DELETE_LINES} -e "s/DAP_IMAGE/${TF_VAR_DAP_IMAGE//\//\\/}/g" -e "s/DOCKER_NETWORK_EXTERNAL/${DOCKER_NETWORK_EXTERNAL}/g" ./compose_templates/${WORKLOAD}.yml > ./${WORKLOAD}/docker-compose.yml
-    sed ${DELETE_LINES} -e "s/MONGO_IMAGE/${TF_VAR_MONGO_IMAGE//\//\\/}/g" -e "s/DOCKER_NETWORK_EXTERNAL/${DOCKER_NETWORK_EXTERNAL}/g" ./compose_templates/${WORKLOAD}.yml > ./${WORKLOAD}/docker-compose.yml
+    if [ ${WORKLOAD} = txqueue ] || [ ${WORKLOAD} = walletdb ]; then
+        sed ${DELETE_LINES} -e "s/MONGO_IMAGE/${TF_VAR_MONGO_IMAGE//\//\\/}/g" -e "s/DOCKER_NETWORK_EXTERNAL/${DOCKER_NETWORK_EXTERNAL}/g" ./compose_templates/${WORKLOAD}.yml > ./${WORKLOAD}/docker-compose.yml
+    else
+        sed ${DELETE_LINES} -e "s/DAP_IMAGE/${TF_VAR_DAP_IMAGE//\//\\/}/g" -e "s/DOCKER_NETWORK_EXTERNAL/${DOCKER_NETWORK_EXTERNAL}/g" ./compose_templates/${WORKLOAD}.yml > ./${WORKLOAD}/docker-compose.yml
+    fi
 done

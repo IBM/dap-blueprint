@@ -51,7 +51,8 @@ mkdir -p /data/db
 
 chown 999:999 /dap-logs
 
-cp mongod.conf /etc/mongod.conf
+REPLICASET=${DAP_SERVICE,,}
+sed -e "s/REPLICASET/${REPLICASET//\//\\/}/g" ./mongod.conf.template > /etc/mongod.conf
 
 export MONGO_INITDB_ROOT_USERNAME=admin
 export MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}

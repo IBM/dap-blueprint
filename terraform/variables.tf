@@ -109,21 +109,6 @@ variable "DAP_REBOOT" {
   default     = "True"
 }
 
-variable "ENC_DBAAS_USER_ID" {
-  type        = string
-  description = "Encrypted user id to create Hyper Protect DBaaS instances."
-}
-
-variable "ENC_DBAAS_TOKEN_AES_ENC_KEY" {
-  type        = string
-  description = "Encrypted AES key for an encrypted token to create Hyper Protect DBaaS instances."
-}
-
-variable "ENC_DBAAS_TOKEN" {
-  type        = string
-  description = "Encryped token to create Hyper Protect DBaaS instances."
-}
-
 variable "ENC_COS_API_KEY" {
   type        = string
   description = "Encryped API key to access a cloud-object storage (COS) instance."
@@ -270,18 +255,6 @@ variable "SIGNING_SERVICE_SSH_PORT" {
   default     = "6005"
 }
 
-variable "TXQUEUE_NAME" {
-  type        = string
-  description = "Instance name of txqueue."
-  default     = "txqueue"
-}
-
-variable "WALLETDB_NAME" {
-  type        = string
-  description = "Instance name of walletdb."
-  default     = "walletdb"
-}
-
 variable "MAIL_USERNAME" {
   type        = string
   description = "User name of your SMTP server (e.g., mailtrap smtp server)."
@@ -290,17 +263,6 @@ variable "MAIL_USERNAME" {
 variable "MAIL_PASSWORD" {
   type        = string
   description = "Password of your SMTP server (e.g., mailtrap smtp server)."
-}
-
-variable "DBAAS_RESOURCE_GROUP" {
-  type        = string
-  description = "Resource group to create a Hyper Protect DBaaS instance."
-}
-
-variable "DBAAS_PLAN" {
-  type        = string
-  description = "Plan to create a Hyper Protect DBaaS instance."
-  default     = "mongodb-flexible"
 }
 
 variable "RHSSO_ADMIN_PASSWORD" {

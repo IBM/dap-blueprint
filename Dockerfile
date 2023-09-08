@@ -32,7 +32,7 @@ RUN apt-get update && \
     pip3 install --upgrade distlib && \
     pip3 install wheel
 
-RUN pip3 install flask==1.1.2 flask_restx flask_sqlalchemy flask_jwt_extended pymongo==3.12.2 asn1==2.2.0 cython ibm-cos-sdk flask-mail==0.9.1 flask_cors certifi requests pyyaml dnspython pyaes ecdsa qrcode aiorpcx aiohttp aiohttp_socks bitstring jsonrpcclient==3.3.5 jsonrpcserver==4.2.0 jinja2==3.0.3 werkzeug==2.0.3 SQLAlchemy==1.4.46
+RUN pip3 install flask==1.1.2 flask_restx flask_sqlalchemy flask_jwt_extended pymongo==4.5.0 asn1==2.2.0 cython ibm-cos-sdk flask-mail==0.9.1 flask_cors certifi requests pyyaml dnspython pyaes ecdsa qrcode aiorpcx aiohttp aiohttp_socks bitstring jsonrpcclient==3.3.5 jsonrpcserver==4.2.0 jinja2==3.0.3 werkzeug==2.0.3 SQLAlchemy==1.4.46
 ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
 RUN pip3 install cryptography==3.4.8 pycryptodome argon2 pycryptodomex pyopenssl
 RUN pip3 install grpcio===1.48.1 grpcio-tools==1.48.1
@@ -136,14 +136,6 @@ RUN cd dap-blueprint/src/dap_client && \
     cd ../../DigitalAssets-Electrum && \
     pip3 install -e .
 
-WORKDIR /git/dap-blueprint
-ARG DBAAS_CA
-ENV DBAAS_CA=${DBAAS_CA} \
-    DBAAS_CA_FILE=/git/dap-blueprint/dbaas-cert.pem
-RUN echo -----BEGIN CERTIFICATE----- > dbaas-cert.pem && \
-    echo "${DBAAS_CA}" >> dbaas-cert.pem && \
-    echo -----END CERTIFICATE----- >> dbaas-cert.pem
-
 ARG ELECTRUM_USER=electrum
 ARG ELECTRUM_PASSWORD=passw0rd
 ARG ELECTRUM_DATA=/data
@@ -155,6 +147,7 @@ RUN mkdir -p ${ELECTRUM_DATA}/wallets
 ARG BUILD=5
 
 ### In production, a private key must not be displayed. ###
+WORKDIR /git/dap-blueprint
 ARG DAP_ROOT_DIR=/git/dap-blueprint
 ARG BUILD_TIME_SECRET
 ARG OLD_BUILD_TIME_SECRET

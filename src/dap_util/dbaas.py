@@ -10,6 +10,19 @@ import os, argparse, json, base64
 import dap_cos, dap_consts, dap_crypto
 from pprint import pprint
 
+
+def get_info(name):
+    key1, key2 = dap_crypto.derive_common_keys()
+    cos_client = dap_cos.create_cos_client('DBaaS')
+    dbaas_info = json.loads(dap_cos.get_and_decrypt_backup_from_cos(name, key1, key2, cos_client))
+    return dbaas_info
+
+def backup_dbaas_info(name, password):
+    key1, key2 = dap_crypto.derive_common_keys()
+    cos_client = dap_cos.create_cos_client('DBaaS')
+    dbaas_info = __create_dbaas_info_from_envs(name, password)
+    dap_cos.encrypt_and_backup_to_cos(name, json.dumps(dbaas_info), key1, key2, cos_client)
+
 def get_client(host, port, cafile, certkeyfile, replicaset, user, password):
     if not os.path.exists(cafile):
         print('CA file ' + str(cafile) + ' does not exist')
@@ -70,12 +83,13 @@ def __load_tls_files(name):
 
     return root_ca, certkey
 
-def __create_dbaas_tls_files(name):
+def create_dbaas_tls_files(name):
     cafile, certkeyfile = __get_tls_file_paths(name)
+    print('Creating {} and {}'.format(cafile, certkeyfile))
 
-    key1, key2 = dap_crypto.derive_common_keys()
-    cos_client = dap_cos.create_cos_client('DBaaS')
-    dbaas_info = json.loads(dap_cos.get_and_decrypt_backup_from_cos(name, key1, key2, cos_client))
+    dbaas_info = get_info(name)
+
+    print(dbaas_info)
 
     root_ca = str(base64.b64decode(dbaas_info['ROOT_CA']), 'utf-8')
     with open(cafile, 'w') as file:
@@ -111,12 +125,6 @@ def __create_dbaas_info_from_envs(name, password):
     }
 
     return dbaas_info    
-
-def backup_dbaas_info(name, password):
-    dbaas_info = __create_dbaas_info_from_envs(name, password)
-    key1, key2 = dap_crypto.derive_common_keys()
-    cos_client = dap_cos.create_cos_client('DBaaS')
-    dap_cos.encrypt_and_backup_to_cos(name, json.dumps(dbaas_info), key1, key2, cos_client)
 
 def get_client_from_info(dbaas_info):
     cafile, certkeyfile = __get_tls_file_paths(dbaas_info['NAME'])
@@ -302,13 +310,13 @@ def backup_dbaas_info_(client, args):
     backup_dbaas_info(args.name, args.password)
 
 def create_dbaas_tls_files_(args):
-    __create_dbaas_tls_files(args.name)
+    create_dbaas_tls_files(args.name)
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--name', default='txqueue')
-    parser.add_argument('--password')
+    parser.add_argument('--password', default=os.environ['TXQUEUE_PASSWORD'])
     subparsers = parser.add_subparsers(title='commands')
 
     enqueue_parser = subparsers.add_parser('enqueue', help='Enqueue a document')

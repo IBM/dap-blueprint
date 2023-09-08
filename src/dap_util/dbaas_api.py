@@ -9,11 +9,6 @@ from pprint import pprint
 from urllib import request
 from urllib.error import HTTPError, URLError
 
-if 'DBAAS_CA_FILE' not in os.environ:
-    raise Exception('Please set an environment variable DBAAS_CA_FILE')
-
-CA_FILE = os.environ['DBAAS_CA_FILE']
-
 HEADERS = {
     'Content-Type': 'application/json',
     'Accept': 'application/json'

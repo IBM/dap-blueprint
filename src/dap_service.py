@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse, os
-import dap_consts
+import dap_consts, dbaas
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -31,6 +31,10 @@ if __name__ == '__main__':
     dap_consts.reboot = reboot
     if 'DAP_ROOT_DIR' not in os.environ:
         raise Exception('DAP_ROOT_DIR environment variable is not set')
+
+    dbaas.create_dbaas_tls_files('txqueue')
+    if args.service == dap_consts.SIGNING_SERVICE_SHORT_NAME:
+        dbaas.create_dbaas_tls_files('walletdb')
 
     if args.service == dap_consts.TRANSACTION_PROPOSER_SHORT_NAME:    
         dap_consts.service = dap_consts.TRANSACTION_PROPOSER

@@ -26,7 +26,7 @@ db = SQLAlchemy(app)
 jwt = JWTManager(app)
 if dap_consts.service == dap_consts.AUTHORIZATION_POLICY_APPROVAL_SERVER:
     # Use the same resource as an authorization policy service
-    resource = DAPDBaaSResource(True, dap_consts.AUTHORIZATION_POLICY_SERVICE)
+    resource = DAPDBaaSResource(dap_consts.AUTHORIZATION_POLICY_SERVICE)
 else:
     resource = DAPCommonResource(dap_consts.reboot, dap_consts.service)
 
