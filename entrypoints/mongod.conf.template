@@ -1,0 +1,14 @@
+net:
+  bindIpAll: true
+  port: 27017
+  tls:
+      mode: requireTLS
+      certificateKeyFile: /mongo-cert/mongod.pem
+      CAFile: /mongo-cert/root-ca.pem
+security:
+  authorization: enabled
+  keyFile: /etc/mongo-key.txt
+replication:
+  replSetName: REPLICASET
+processManagement:
+   fork: true
