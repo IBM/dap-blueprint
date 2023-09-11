@@ -24,7 +24,7 @@ do
         if [[ ${line} != SSH_PUBKEY* ]]; then
             echo "TF_VAR_${line}" >> ${ENV_FILE}
         fi
-        if [[ ${line} == IC_API_KEY* ]]; then
+        if [[ ${line} == IC_API_KEY* ]] || [[ ${line} == IAAS_CLASSIC_USERNAME* ]] || [[ ${line} == IAAS_CLASSIC_API_KEY* ]]; then
             echo "${line}" >> ${ENV_FILE}
         fi
     fi

@@ -63,6 +63,22 @@ variable "PREFIX" {
   default     = "hpcr-dap"
 }
 
+variable DNS_DOMAIN {
+  type        = string
+  description = "DNS domain name for VSI."
+}
+
+variable "DNS_RECORD_TTL" {
+  type        = number
+  description = "Time to live for a DNS record"
+  default     = 60
+}
+
+variable "CONTACT" {
+  type        = string
+  description = "EMail address of the contact person for the deployment, will e.g. be used for the DNS records."
+}
+
 variable "PROFILE" {
   type        = string
   description = "Profile used for the VSI, this has to be a secure execution profile in the format Xz2e-YxZ, e.g. bz2e-1x4."
@@ -195,18 +211,6 @@ variable "HPCS_INTERVAL" {
   default     = "0"
 }
 
-variable "RHSSO_HOST" {
-  type        = string
-  description = "IP address of Red Hat Single Sign-On server."
-  default     = ""
-}
-
-variable "DAP_HOST" {
-  type        = string
-  description = "IP address of transaction proposer."
-  default     = ""
-}
-
 variable "TRANSACTION_PROPOSER_PORT" {
   type        = string
   description = "Transaction proposer port"
@@ -227,32 +231,44 @@ variable "RHSSO_SSH_PORT" {
 
 variable "TRANSACTION_PROPOSER_SSH_PORT" {
   type        = string
-  description = "SH port for transaction proposer (only for debugging)"
+  description = "SSH port for transaction proposer (only for debugging)"
   default     = "6001"
 }
 
 variable "AUTHORIZATION_POLICY_SERVICE_SSH_PORT" {
   type        = string
-  description = "SH port for authorization policy service (only for debugging)"
+  description = "SSH port for authorization policy service (only for debugging)"
   default     = "6002"
 }
 
 variable "FRAUD_DETECTION_POLICY_SERVICE_SSH_PORT" {
   type        = string
-  description = "SH port for fraud-detection policy service (only for debugging)"
+  description = "SSH port for fraud-detection policy service (only for debugging)"
   default     = "6003"
 }
 
 variable "TRANSACTION_APPROVAL_POLICY_SERVICE_SSH_PORT" {
   type        = string
-  description = "SH port for transaction-approval policy service (only for debugging)"
+  description = "SSH port for transaction-approval policy service (only for debugging)"
   default     = "6004"
 }
 
 variable "SIGNING_SERVICE_SSH_PORT" {
   type        = string
-  description = "SH port for signing service (only for debugging)"
+  description = "SSH port for signing service (only for debugging)"
   default     = "6005"
+}
+
+variable "TXQUEUE_SSH_PORT" {
+  type        = string
+  description = "SSH port for txqueue (only for debugging)"
+  default     = "6006"
+}
+
+variable "WALLETDB_SSH_PORT" {
+  type        = string
+  description = "SSH port for walletdb (only for debugging)"
+  default     = "6007"
 }
 
 variable "MAIL_USERNAME" {
@@ -295,4 +311,16 @@ variable "SIGNING_SERVICE_PORT" {
   type        = string
   description = "Signing service port."
   default     = "5002"
+}
+
+variable "TXQUEUE_PORT" {
+  type        = string
+  description = "Transaction queue port."
+  default     = "27017"
+}
+
+variable "WALLETDB_PORT" {
+  type        = string
+  description = "Wallet DB port."
+  default     = "27018"
 }

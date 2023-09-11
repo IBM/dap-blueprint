@@ -316,7 +316,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--name', default='txqueue')
-    parser.add_argument('--password', default=os.environ['TXQUEUE_PASSWORD'])
+    parser.add_argument('--password')
     subparsers = parser.add_subparsers(title='commands')
 
     enqueue_parser = subparsers.add_parser('enqueue', help='Enqueue a document')

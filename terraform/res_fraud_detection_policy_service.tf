@@ -30,6 +30,15 @@ resource "ibm_is_floating_ip" "fraud_detection_policy_service_floating_ip" {
   tags   = local.tags
 }
 
+resource "ibm_dns_record" "fraud_detection_policy_service_dns_record" {
+  data               = ibm_is_floating_ip.fraud_detection_policy_service_floating_ip.address
+  domain_id          = data.ibm_dns_domain.dns_domain.id
+  host               = "${var.PREFIX}-fdp"
+  responsible_person = replace(var.CONTACT, "@", ".")
+  ttl                = var.DNS_RECORD_TTL
+  type               = "a"
+}
+
 # log the floating IP for convenience
 output "fraud_detection_policy_service_ip" {
   value = resource.ibm_is_floating_ip.fraud_detection_policy_service_floating_ip.address

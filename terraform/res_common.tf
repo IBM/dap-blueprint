@@ -13,6 +13,10 @@ locals {
   tags = ["hpcr", "dap", var.PREFIX]
 }
 
+data "ibm_dns_domain" "dns_domain" {
+  name = var.DNS_DOMAIN
+}
+
 # the VPC
 resource "ibm_is_vpc" "dap_vpc" {
   name = format("%s-vpc", var.PREFIX)
@@ -41,7 +45,7 @@ resource "ibm_is_security_group_rule" "dap_inbound" {
   remote    = "0.0.0.0/0"
   tcp {
     port_min = 4000
-    port_max = 10000
+    port_max = 30000
   }
 }
 
