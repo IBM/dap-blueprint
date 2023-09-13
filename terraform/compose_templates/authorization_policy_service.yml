@@ -16,6 +16,7 @@ services:
 
   authorization-policy-service:
     image: *dap-base
+    hostname: ap-host
     networks:
       - dap-network
     ports:

@@ -16,6 +16,7 @@ services:
 
   fraud-detection-policy-service:
     image: *dap-base
+    hostname: fdp-host
     networks:
       - dap-network
     ports:

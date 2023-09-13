@@ -23,6 +23,13 @@ export $(cat .env | grep -v ^#)
 SSH_PUBKEY=`cat ${SSH_PUBKEY_PATH}`
 echo "SSH_PUBKEY=${SSH_PUBKEY}" >> ${ENV_FILE}
 
+if ! grep -q TXQUEUE_HOST ${ENV_FILE}; then
+    echo "TXQUEUE_HOST=txqueue-host" >> ${ENV_FILE}
+fi
+if ! grep -q WALLETDB_HOST ${ENV_FILE}; then
+    echo "WALLETDB_HOST=walletdb-host" >> ${ENV_FILE}
+fi
+
 pushd terraform > /dev/null
 ./gen_compose.sh
 popd > /dev/null

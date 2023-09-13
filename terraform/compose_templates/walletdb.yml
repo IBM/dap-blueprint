@@ -16,6 +16,7 @@ services:
 
   walletdb:
     image: *dap-base
+    hostname: walletdb-host
     networks:
       - dap-network
     ports:

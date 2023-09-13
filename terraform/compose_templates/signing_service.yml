@@ -16,6 +16,7 @@ services:
 
   signing-service:
     image: *dap-base
+    hostname: ss-host
     networks:
       - dap-network
     ports:

@@ -14,8 +14,9 @@ networks:
 
 services:
 
-  dap-host:
+  transaction-proposer:
     image: *dap-base
+    hostname: dap-host
     networks:
       - dap-network
     ports:

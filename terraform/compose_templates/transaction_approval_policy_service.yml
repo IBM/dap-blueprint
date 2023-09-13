@@ -16,6 +16,7 @@ services:
 
   transaction-approval-policy-service:
     image: *dap-base
+    hostname: tap-host
     networks:
       - dap-network
     ports:

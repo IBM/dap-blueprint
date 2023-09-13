@@ -16,6 +16,7 @@ services:
 
   txqueue:
     image: *dap-base
+    hostname: txqueue-host
     networks:
       - dap-network
     ports:

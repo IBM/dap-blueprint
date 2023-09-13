@@ -14,8 +14,9 @@ networks:
 
 services:
 
-  rhsso-host:
+  rhsso:
     image: *dap-base
+    hostname: rhsso-host
     networks:
       - dap-network
     ports:

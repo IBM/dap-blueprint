@@ -47,7 +47,7 @@ ENV PYTHONUNBUFFERED=1
 ARG GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git curl procps less wget unzip jq software-properties-common openssh-server patch libgmp3-dev libffi-dev libssl-dev libxml2-dev libxslt-dev ca-certificates gnupg libcurl4-openssl-dev && \
+    apt-get install -y --no-install-recommends git curl procps less wget unzip jq software-properties-common openssh-server patch libgmp3-dev libffi-dev libssl-dev libxml2-dev libxslt-dev ca-certificates gnupg libcurl4-openssl-dev dnsutils && \
     mkdir /var/run/sshd && \
     apt-get install -y --no-install-recommends python3.10 python3-pip python3-setuptools python3.10-distutils x11vnc xvfb python3-pyqt5 && \
     cd /usr/bin/ && rm -rf python3 && ln -s python3.10 python3 && \
@@ -144,7 +144,7 @@ ENV ELECTRUM_USER=${ELECTRUM_USER} \
     ELECTRUM_DATA=${ELECTRUM_DATA}
 RUN mkdir -p ${ELECTRUM_DATA}/wallets
 
-ARG BUILD=5
+ARG BUILD=6
 
 ### In production, a private key must not be displayed. ###
 WORKDIR /git/dap-blueprint
