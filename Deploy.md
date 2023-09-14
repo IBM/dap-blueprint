@@ -36,7 +36,8 @@
       - [Create a transaction to send an amount of bitcoins](#create-a-transaction-to-send-an-amount-of-bitcoins)
       - [Get a signed transaction](#get-a-signed-transaction)
       - [Broadcast a signed transaction](#broadcast-a-signed-transaction)
-      - [Funding and transferring](#funding-and-transferring)
+    - [Electrum UI](#electrum-ui)
+    - [Funding and transferring](#funding-and-transferring)
 
 <a id="overview"></a>
 
@@ -48,11 +49,11 @@ This is an implementation of Digital Asset Platform Blueprint (DAP Blueprint).
 
 An end user can send a REST API request to DAP Blueprint through a DAP frontend (e.g., bitcoin wallet like Electrum). You can use our [DAP CLI](#dap-cli) or [modified version of Electrum](#electrum) as the frontend. The followings describe how the REST API request from the frontend is processed in DAP Blueprint.
 
-1. The transaction proposer is the endpoing for REST API requests from a DAP frontend. It authenticates a user with userid and password through Red Hat Single Sign-On (RHSSO). If the user is authorized by RHSSO, a bearer token is sent back to the DAP frontend. Other REST APIs in the transaction proposer can be called by using the bearer token. Transaction-proposer REST APIs can be found [here](https://ibm.github.io/dap-blueprint/). In addition, you can enable two-facator authentication in RHSSO. When the two-factor authentication is enabled, you can obtaine an one-time passcode through Google Authenticator or FreeOTP Authenticator. 
+1. The transaction proposer is the endpoing for REST API requests from a DAP frontend. It authenticates a user with a userid and a password through Red Hat Single Sign-On (RHSSO). If the user is authorized by RHSSO, a bearer token is sent back to the DAP frontend. Other REST APIs in the transaction proposer can be called by using the bearer token. Transaction-proposer REST APIs can be found [here](https://ibm.github.io/dap-blueprint/). In addition, you can enable two-facator authentication in RHSSO. When the two-factor authentication is enabled, you can obtaine an one-time passcode through Google Authenticator or FreeOTP Authenticator. 
 
-1. The transaction proposer enqueues a request in a transaction queue on Hyper Protect DBaaS.
+2. The transaction proposer enqueues a request in a transaction queue which is a MongoDB server running on a Hyper Protect Virtual Server (HPVS) instance.
 
-1. Authorization, fraud-detection, and transaction-approval policy services dequeues a request from a transaction queue. Each policy service signs the request by using its own private key through Hyper Protect Crypto Service if the request satisfies pre-defined rules or models, and then enqueues the signed request in the transaction queue.
+3. Authorization, fraud-detection, and transaction-approval policy services dequeues a request from a transaction queue. Each policy service signs the request by using its own private key through Hyper Protect Crypto Service (HPCS) if the request satisfies pre-defined rules or models, and then enqueues the signed request in the transaction queue.
 
    - **Authentication policy service**: We implemented simple rules described [here](Authorization-Policy.md). When the request requires human approvals, the authentication policy service sends approval requests to approvers (sends e-mails to a [mailtrap](https://mailtrap.io/) account). Each approver can approve or reject the request through a Red Hat Process Automation Manager server which runs beside the authorization policy service. He/she can can overview a transaction in an approval request such as an amount to be sent. Further, he/she can obtain the details of the transaction through [REST APIs](https://ibm.github.io/dap-blueprint/).
    - **Fraud-detection policy service**: We implemented simple two rules. One of them rejects a transaction from a user who initiated transactions more than a threshold. The other rule rejects a transaction that tries to send bitcoins to an address that is used in the past.
@@ -60,9 +61,9 @@ An end user can send a REST API request to DAP Blueprint through a DAP frontend 
 
    When the request is approved or rejected, it is enqueued to the transaction queue. When the request is rejected, it is sent back to the transaction proposer. When the request is approved, it is processed by a signing service in Step 4.
 
-1. Signing service dequeues a request from a transaction queue. It processes the request with accessing a wallet db on Hyper Protect DBaaS and HPCS if the request is signed by all of the policy services, and then enqueues a processing result in the transaction queue.
+4. Signing service dequeues a request from a transaction queue. It processes the request with accessing a wallet db, which is a MongoDB server running on a HPVS instance, and HPCS if the request is signed by all of the policy services, and then enqueues a processing result in the transaction queue.
 
-1. Transaction proposer dequeues a result from a transaction queue, and then sends back to a DAP frontend.
+5. Transaction proposer dequeues a result from a transaction queue, and then sends back to a DAP frontend.
 
 <a id="prerequisites"></a>
 
@@ -74,29 +75,25 @@ You need to set up the followings to build and deploy DAP Blueprint.
    
    DAP Blueprint needs billing instances on IBM Cloud. So, you need Pay as You Go (PAYG) account for IBM Cloud at least.
 
-1. API Key
+2. API Key
    
    Create an API key in your account. We assume to use a single API key for every instance due to simplicity. However, this is not recommended in production. Please use an individual API key for each instance in production.
 
-1. [Container Registry Name Space](https://cloud.ibm.com/docs/Registry)
+3. [Container Registry Name Space](https://cloud.ibm.com/docs/Registry)
    
-   Create a new name space in IBM Container Registry to store your DAP Blueprint image. Please use **Dallas** region because only the Dallas region supports Docker Content Trust (DCT) which is needed to deploy Hyper Protect Virtual Server instances.
+   Create a new name space in IBM Container Registry to store your DAP Blueprint image.
 
 4. [Cloud Object Storage (COS) Instance and Buckets](https://cloud.ibm.com/objectstorage/create)
    
    Create a COS instance in **Dallas** region, and then create two buckets such as *dap-backup* and *wallet-backup*. These buckets are used to store the encrypted data for backup.
 
-1. [Hyper Protect Crypto Services (HPCS) Instance](https://cloud.ibm.com/docs/hs-crypto)
+5. [Hyper Protect Crypto Services (HPCS) Instance](https://cloud.ibm.com/docs/hs-crypto)
    
    Create a HPCS instance and [initialize it](https://cloud.ibm.com/docs/hs-crypto?topic=hs-crypto-initialize-hsm-prerequisite). After initializing your HPCS instance, you should be able to obtain the following information.
    - Public Enterprise PKCS #11 endpoint URL (hostname starting from *ep11.*)
    - Instance ID
 
-1. [Hyper Proetct DBaaS for MongoDB Certificate Authority](https://cloud.ibm.com/docs/hyper-protect-dbaas-for-mongodb?topic=hyper-protect-dbaas-for-mongodb-gettingstarted)
-   
-   Create a Hyper Protect DBaaS (HPDBaaS) instance manually (here)[https://cloud.ibm.com/catalog/services/hyper-protect-dbaas-for-mongodb]. At this time, you can create a free instance because this is not used in DAP Blueprint. This instance is needed only for downloading a certificate authority file. After creating an instance, you can download a certificate authority file from the overview page. After downloading the file, you can delete the instance.
-
-1. [IBM Logging Instance](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se#hpcr_setup_logging)
+6. [IBM Logging Instance](https://cloud.ibm.com/docs/vpc?topic=vpc-about-se#hpcr_setup_logging)
    
    Create an IBM loggin instance. After creating an instance, you should be able to obtain the following information.
    - Syslog server endpoint (hostname starting from *syslog.*)
@@ -104,19 +101,23 @@ You need to set up the followings to build and deploy DAP Blueprint.
    - API endpoint (hostname starting from *api.*)
    - Ingestion key
 
-1. [Red Hat Customer Portal Account](https://access.redhat.com/)
+7. [DNS domain](https://cloud.ibm.com/docs/dns?topic=dns-getting-started)
+   
+   Create a DNS domain follwing the procedure [here](https://cloud.ibm.com/docs/dns?topic=dns-getting-started). This DNS domain is used to assign a host name to each HPVS instance.
+
+8. [Red Hat Customer Portal Account](https://access.redhat.com/)
    
    Create an account in Red Hat Customer Portal. After creating an account, you should be able to obtain the following information.
    - Userid (your e-mail address)
    - Password
 
-1.  [mailtrap Account](https://mailtrap.io/)
+9.  [mailtrap Account](https://mailtrap.io/)
     
     Create an account in mailtrap, and then click **My Inbox**. After that, you should be able to obtain the following information from the **Credentials** tab in **SMTP Settings**. Our policy services send e-mail notifications to this SMTP server.
     - Username
     - Password    
 
-1. Docker Environment (Optional)
+10. Docker Environment (Optional)
     
     You can try to run DAP Blueprint on your laptop for test purpose. If you have a local Docker environment, you can build DAP Blueprint image and deploy it on your laptop.
 
@@ -145,19 +146,28 @@ This is a procedure to build a DAP Blueprint image in your laptop or Linux machi
    | --------------------- | --------------------------------------------------------------------------- |
    | REGISTRY_URL          | URL of your IBM container registry (e.g., us.icr.io). |
    | REGISTRY_NAMESPACE    | IBM container registry namespace which you created at Prerequisites 3 (e.g., dap-blueprint). |
-   | DBAAS_CA              | HPDBaaS certificate authority which you downloaded at Prerequisites 6. Please paste the content of a downloaded certificate authority file without `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`. |
    | BUILD_TIME_SECRET     | An arbitrary string used as a build-time secret. This secret is used to generate signing and encryption keys with `DEPLOY_TIME_SECRET` which is specified at deploy time. |
    | OLD_BUILD_TIME_SECRET | A build-time secret used at the previous build. This is needed only for key rotation. In general, please keep empty like `OLD_BUILD_TIME_SECRET=`. |
    | REDHAT_EMAIL          | E-mail address in your Red Hat Customer Portal Account which you created at Prerequisites 8. |
    | REDHAT_TOKEN          | Password in your Red Hat Customer Portal Account which you created at Prerequisites 8. |
 
-1. Run a build script
+2. Run a build script
    
    ```
    # ./build-docker.sh
    # docker images
    ```
-   You should be able to see you DAP Blueprint image named as `REGISTRY_URL/REGISTRY_NAMESPACE/dap-base`.
+   You should be able to see your DAP Blueprint image named as `REGISTRY_URL/REGISTRY_NAMESPACE/dap-base` and MongoDB image named as `REGISTRY_URL/REGISTRY_NAMESPACE/dap-mongo`. Please note that it can take a long time (e.g., a half of day) to build the the MongoDB image with a machine that have a few CPUs. So, it is recommended to run the build script on a machine that has many CPUs.
+
+3. Push images to IBM Container registry
+   
+   First, please create a name space in your IBM Cloud Account following [this procedure](https://cloud.ibm.com/docs/Registry?topic=Registry-getting-started). Then, please run the following commands in the machine where you built the images.
+
+   ```
+   # docker login -u iamapikey -p <Your IBM Cloud API Key> <REGISTRY_URL>
+   # docker push <REGISTRY_URL>/<REGISTRY_NAMESPACE>/dap-base
+   # docker push <REGISTRY_URL>/<REGISTRY_NAMESPACE>/dap-mongo
+   ```
 
 <a id="local-deploy"></a>
 
@@ -194,19 +204,15 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
    
     | Environment Variable                         |Description                                                                 |
     | -------------------------------------------- | -------------------------------------------------------------------------- |
-    | RHSSO_HOST                                   | IP address of your Red Hat Single Sign-On (RHSSO) server. For local deployment, this is known after deploying a RHSSO server. So, please set 127.0.0.1 at this time. For cloud deployment, please set 10.X.Y.10. X and Y are different based on the region and zone which you choose. Please refer the address prefix [here](https://cloud.ibm.com/docs/vpc?topic=vpc-configuring-address-prefixes&locale=en). |
-    | DAP_HOST                                     | IP address of your transaction proposer. For local deployment, this is known after deploying a transaction proposer. So, please set 127.0.0.1 at this time. For cloud deployment, please set 10.X.Y.23. X and Y are different based on the region and zone which you choose. Please refer the address prefix [here](https://cloud.ibm.com/docs/vpc?topic=vpc-configuring-address-prefixes&locale=en). |
     | IC_API_KEY                                   | IBM Cloud API key which you creatated at Prerequisites 2. |
+    | IAAS_CLASSIC_USERNAME                        | IBM Cloud username for classic infrastructure. You can find the user name from your IBM Cloud console ==> Manage (Top middle tab) ==> IAM ==> Users ==> <Your account name> ==> User details ==> VPN password.  |
+    | IAAS_CLASSIC_API_KEY                         | IBM Cloud API key for classic infrastructure. You can find the user name from your IBM Cloud console ==> Manage (Top middle tab) ==> IAM ==> Users ==> <Your account name> ==> User details ==> VPN password.      |
     | REGION                                       | IBM Cloud region which you want to deploy your DAP Blueprint instances (e.g., jp-tok). Choose a region that supports HPVS, not all regions do. This is not used for local deployment. |
     | ZONE                                         | IBM Cloud zone which you want to deploy your DAP Blueprint instances (e.g., 1). |
+    | DNS_DOMAIN                                   | DNS domain name which you created at Prerequisites 7. |
+    | CONTACT                                      | E-mail address which you used to create a DNS domain at at Prerequisites 7. |
     | REGISTRY_USERNAME                            | Username to login IBM Cloud. This should be `iamapikey`. |
     | REGISTRY_PASSWORD                            | IBM Cloud API key which you creatated at Prerequisites 2. |
-    | DBAAS_USER_ID                                | User ID to access your Hyper Protect DBaaS (HPDBaaS) instances. Set `admin`. |
-    | DBAAS_API_KEY                                | IBM Cloud API key which you creatated at Prerequisites 2. |
-    | DBAAS_RESOURCE_GROUP                         | IBM Cloud resource group which you want to create HPDBaaS instances (e.g., default). |
-    | DBAAS_PLAN                                   | Plan name to create your HPDBaaS instances (e.g., mongodb-flexible). |
-    | TXQUEUE_NAME                                 | HPDBaaS instance name for your transaction queue (e.g., dap-txqueue). |
-    | WALLETDB_NAME                                | HPDBaaS instance name for your wallet DB (e.g., dap-walletdb). |
     | COS_API_KEY                                  | IBM Cloud API key which you creatated at Prerequisites 2. |
     | COS_ID                                       | ID of your cloud object storage (COS) instance. This is a string starting from `crn`. |
     | DAP_BACKUP_BUCKET                            | Bucket name to backup the DAP Blueprint data (e.g., dap-backup). Note that Bucket name must be unique in all of your COS instances. |
@@ -226,10 +232,22 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
     | OLD_DEPLOY_TIME_SECRET                       | A deploy-time secret used at the previous deployment. This is needed only for key rotation. In general, please keep empty like `OLD_DEPLOY_TIME_SECRET=`. |
     | ARGON2_SALT                                  | An arbitrary string used to generate signing and encryption keys with `BUILD_TIME_SECRET` and `DEPLOY_TIME_SECRET`. |
     | DAP_IMAGE                                    | Your DAP Blueprint image name. This should be REGISTRY_URL/REGISTRY_NAMESPACE/dap-base. |
+    | MONGO_IMAGE                                  | Your MongoDB image name. This should be REGISTRY_URL/REGISTRY_NAMESPACE/dap-mongo. |
     | RHSSO_ADMIN_PASSWORD                         | Admin password for your RHSSO server. |
     | RHPAM_ADMIN_PASSWORD                         | Admin password for your Red Hat Process Automation Manager (RHPAM) server. |
     | RHPAM_USER_PASSWORD                          | Password for users that are registered to your RHPAM server. Currently, DAP Blueprint registers five users: alice, bob, charlie, eve, and mallory. This is a tentative setting for simplification because all of the users have the same password. In production, different passwords should be registered for each user. |
     | RHPAM_APPROVER_PASSWORD                      | Password for approvers that are registered to your RHPAM server. Currently, DAP Blueprint registers three approvers: aimee, jon, katy. This is a tentative setting for simplification because all of the approvers have the same password. In production, different passwords should be registered for each approver. |
+
+    You can see multiple environment variables that have IBM Cloud API key. For simplicity, we assumed to set the same API key for the environment variables. From a security perspective, you should create different API keys for each instance (service) and set them to the environment variables.
+
+2. Change the values of the following environment variables if needed
+
+    | Environment Variable                         |Description                                                                 |
+    | -------------------------------------------- | -------------------------------------------------------------------------- |
+    | TXQUEUE_HOST                                 | Hostname of a transaction queue. You do not need to change this value from `txqueue-host`. |
+    | TXQUEUE_PORT                                 | Port of a transaction queue. You do not need to change this value from 27017. |
+    | WALLETDB_HOST                                | Hostname of a wallet db. You do not need to change this value from `walletdb-host`. |
+    | WALLETDB_PORT                                | Port of a wallet db. You do not need to change this value from 27018. |
     | TRANSACTION_PROPOSER_PORT                    | Port of your transaction proposer. |
     | APPROVAL_SERVER_PORT                         | Port of your approval server. |
     | RHSSO_SSH_PORT                               | SSH port of your RHSSO container. This is only for test purpose. |
@@ -239,60 +257,52 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
     | TRANSACTION_APPROVAL_POLICY_SERVICE_SSH_PORT | SSH port of your transaction approval policy service container. This is only for test purpose. |
     | SIGNING_SERVICE_SSH_PORT                     | SSH port of your signing service container. This is only for test purpose. |
 
-    You can see multiple environment variables that have IBM Cloud API key. For simplicity, we assumed to set the same API key for the environment variables. From a security perspective, you should create different API keys for each instance (service) and set them to the environment variables.
+    Basically, you do not need to change the above values (use default values).
 
-2. Run Red Hat Single Sign-On (RHSSO) Server
+3. Run Red Hat Single Sign-On (RHSSO) Server
    
    ```
    # ./run-local.sh RHSSO
-   ```
-
-3. Inspect the RHSSO running container to find the `IPAddress` value and set the `RHSSO_HOST` environment variable in your `.env` file.
-
-   ```
-   # docker ps
-   # docker inspect <Your RHSSO container name or ID>
    ```
 
 4. Before continuing, check if the initialization of RHSSO finishes by entering to the RHSSO container and check the `/dap-logs/rhsso-init.out` log contains the message `FRONTEND_URL=https://rhsso-host:8543/auth` which signifies the initialization of RHSSO has finished. Please note that other containers will fail to start if you do not wait to see that log message.
 
    ```
    # docker ps
-   # docker exec fdfe31dea63a cat -- /dap-logs/rhsso-init.out
+   # docker exec <Container ID> cat -- /dap-logs/rhsso-init.out
    ```
 
-5. Run Signing Service
-   
-   ```
-   # ./run-local.sh SS False docker-build.log
-   ```
-   This command creates a container for signing service and two HPDBaaS instances (e.g., dap-txqueue, dap-walletdb). The second argument of this script specifies if you want to boot the service from scratch or reboot it. When `False` is specified, the signing service is booted from scratch. When `True` is specified, the signing service is rebooted from the backup information stored in your COS instance. We recommend `reboot` (i.e., `True` option) after you create the signing service once to reduce the fee for IBM Cloud.
+5. Run Transaction Queue and WalletDB (MongoDB containers)
 
-   When you reboot the signing service, you can skip this step.
-
-6. Before continuing, check on your IBM cloud resource dashboard that the two Hyper Protect Mongo Databases are created and status set to Active. Other containers will fail to stasrt if you do not wait until the databases are ready for transactions.
-
-7. Run Transaction Proposer
-   
    ```
-   # ./run-local.sh TP False docker-build.log
+   # ./run-local.sh TXQUEUE
+   # ./run-local.sh WALLETDB
    ```
-   
-8. Inspect the transaction proposer running container to find the `IPAddress` value and set the `DAP_HOST` environment variable in your `.env` file.
+
+   After that, please check if each MongoDB server is initialized by running the following commands.
 
    ```
    # docker ps
-   # docker inspect <Your transaction proposer container name or ID>
+   # docker exec <Container ID> cat -- /dap-logs/<txqueue,walletdb>.out
    ```
 
-9. Run Other Services
-   
+   If you can see the following output, the MongoDB server is initialized.
+
    ```
-   # ./run-local.sh AP False docker-build.log
-   # ./run-local.sh FDP False docker-build.log
-   # ./run-local.sh TAP False docker-build.log
+   MongoDB server version: 7.0.1
+   {
+        "info2" : "no configuration specified. Using a default configuration for the set",
+        "me" : ...,
+        "ok" : 1
+   }
    ```
-   When you reboot these services and signing service, please simply run the following command.
+
+6.  Run Other Services (Transactino Proposer, Authorization Policy Service, Fraud Detection Policy Service, Transaction Approval Policy Service, and Signing Service)
+
+   ```
+   # ./run-local.sh all False docker-build.log
+   ```
+   When you reboot these services, please simply run the following command.
    ```
    # ./run-local.sh
    ```
@@ -446,19 +456,18 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
    
    ```
    # cd dap-blueprint
-   # ./run.sh RHSSO False docker-build.log
+   # ./run.sh RHSSO
    ```
-   The second argument of this script specifies if you want to boot all of the services from scratch or reboot them. When `False` is specified, all of the services are booted from scratch. When `True` is specified, all of the services are rebooted from the backup information stored in your COS instance. We recommend `reboot` (i.e., `True` option) after you created all of the services once to reduce the fee for IBM Cloud.
-   
+
    This script outputs an IP address of this RHSSO server. The following is an example output.
    ```
    rhsso_floating_ip = "xxx.xxx.xxx.xxx"
    ```
-   Please set this IP address to an environment variable `RHSSO_HOST` in the `.env` file and then run the following command.
+
+   Please add this IP address to `/etc/hosts` in a machine, from which you want to access DAP Blueprint, as follows.
    ```
-   # ./create-contract.sh
+   <RHSSO IP address>   rhsso-host
    ```
-   This command re-creates encrypted contract files with a correct `RHSSO_HOST`.
 
    You can check if the deployment succeeds in your logging instance.
 
@@ -469,44 +478,22 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
    # ibmcloud is images | grep "ibm-hyper-protect-container-runtime"
    ```
 
-1. Run Signing Service
+2. Run Transaction Quque and WalletDB (two MongoDB servers)
    
    ```
-   # ./run.sh SS False docker-build.log
+   # ./run.sh TXQUEUE
+   # ./run.sh WALLETDB
    ```
-   This command deploys a signing service and two HPDBaaS instances (e.g., dap-txqueue, dap-walletdb). The second argument of this script specifies if you want to boot the service from scratch or reboot it. When `False` is specified, the signing service is booted from scratch. When `True` is specified, the signing service is rebooted from the backup information stored in your COS instance. We recommend `reboot` (i.e., `True` option) after you create the signing service once to reduce the fee for IBM Cloud.
 
    You can skip this step when you reboot the signing service.
 
-1. Run Transaction Proposer
+3. Run Other Services (Transactino Proposer, Authorization Policy Service, Fraud Detection Policy Service, Transaction Approval Policy Service, and Signing Service)
    
    ```
-   # ./run.sh TP False docker-build.log
+   # ./run.sh all False docker-build.log
    ```
-   This script outputs an IP address of transaction proposer. The following is an example output.
-   ```
-   transaction_proposer_ip = "xxx.xxx.xxx.xxx"
-   ```
-   Please set this IP address to an environment variable `DAP_HOST` in the `.env` file and then run the following command.
-   ```
-   # ./create-contract.sh
-   ```
-   This command re-creates encrypted contract files with a correct `DAP_HOST`.
 
-1. Run Other Services
-   
-   ```
-   # ./run.sh AP False docker-build.log
-   # ./run.sh FDP False docker-build.log
-   # ./run.sh TAP False docker-build.log
-   ```
-   These commands deploy three services: authorization policy service, fraud detection policy service, and transaction approval policy service.
-
-   When you reboot these services and a signing service, please run the following command.
-   ```
-   # ./run.sh
-   ```
-   This command deploys four services: authorization policy service, fraud detection policy service, transaction approval policy service, and signing service.
+   The second argument of this script specifies if you want to boot the service from scratch or reboot it. When `False` is specified, the services are booted from scratch. When `True` is specified, the services are rebooted from the backup information stored in your COS instance. We recommend `reboot` (i.e., `True` option) after you create the services once to reduce the fee for IBM Cloud.
 
 <a id="hostname"></a>
 
@@ -519,11 +506,21 @@ All of the services in DAP Blueprint authenticate users through Red Hat Single S
 - rhpam-host: IP address of your authorization policy service
 - approval-host: IP address of your authorization policy service
 
-When you deploy DAP Blueprint locally, please set `127.0.0.1` to all of the above addresses. When you deploy DAP Blueprint on IBM Cloud Hyper Protect Virtual Server for IBM Cloud VPC, please obtain the IP addresses from the outputs of `./run.sh`.
-  
+When you deploy DAP Blueprint locally, please set `127.0.0.1` to all of the above addresses as follows. 
+
 ```
 127.0.0.1 rhsso-host dap-host rhpam-host approval-host
 ```
+
+When you deploy DAP Blueprint on IBM Cloud Hyper Protect Virtual Server for IBM Cloud VPC, please obtain the IP addresses by running the following commands.
+
+```
+# nslookup hpcr-dap-rhsso.<Your DNS domain>
+# nslookup hpcr-dap-tp.<Your DNS domain>
+# nslookup hpcr-dap-ap.<Your DNS domain>
+```
+
+The first command outputs the IP address for rhss-host. The second command outputs the IP address for dap-host. The last command outputs the IP address for rhpam-host and approval-host.
 
 <a id="2fa"></a>
 
