@@ -101,9 +101,9 @@ You need to set up the followings to build and deploy DAP Blueprint.
    - API endpoint (hostname starting from *api.*)
    - Ingestion key
 
-7. [DNS domain](https://cloud.ibm.com/docs/dns?topic=dns-getting-started)
+7. [IBM Cloud DNS Services](https://cloud.ibm.com/docs/dns-svcs?topic=dns-svcs-getting-started)
    
-   Create a DNS domain follwing the procedure [here](https://cloud.ibm.com/docs/dns?topic=dns-getting-started). This DNS domain is used to assign a host name to each HPVS instance.
+   Create a IBM DNS Services instance following the procedure [here](https://cloud.ibm.com/docs/dns-svcs?topic=dns-svcs-getting-started). This service will be used to permit the VPC to resolve custom domains that will be used to assign a host name to each HPVS instance.
 
 8. [Red Hat Customer Portal Account](https://access.redhat.com/)
    
