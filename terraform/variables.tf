@@ -232,43 +232,43 @@ variable "RHSSO_SSH_PORT" {
 variable "TRANSACTION_PROPOSER_SSH_PORT" {
   type        = string
   description = "SSH port for transaction proposer (only for debugging)"
-  default     = "6001"
+  default     = "6000"
 }
 
 variable "AUTHORIZATION_POLICY_SERVICE_SSH_PORT" {
   type        = string
   description = "SSH port for authorization policy service (only for debugging)"
-  default     = "6002"
+  default     = "6000"
 }
 
 variable "FRAUD_DETECTION_POLICY_SERVICE_SSH_PORT" {
   type        = string
   description = "SSH port for fraud-detection policy service (only for debugging)"
-  default     = "6003"
+  default     = "6000"
 }
 
 variable "TRANSACTION_APPROVAL_POLICY_SERVICE_SSH_PORT" {
   type        = string
   description = "SSH port for transaction-approval policy service (only for debugging)"
-  default     = "6004"
+  default     = "6000"
 }
 
 variable "SIGNING_SERVICE_SSH_PORT" {
   type        = string
   description = "SSH port for signing service (only for debugging)"
-  default     = "6005"
+  default     = "6000"
 }
 
 variable "TXQUEUE_SSH_PORT" {
   type        = string
   description = "SSH port for txqueue (only for debugging)"
-  default     = "6006"
+  default     = "6000"
 }
 
 variable "WALLETDB_SSH_PORT" {
   type        = string
   description = "SSH port for walletdb (only for debugging)"
-  default     = "6007"
+  default     = "6000"
 }
 
 variable "MAIL_USERNAME" {
