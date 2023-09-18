@@ -63,20 +63,20 @@ variable "PREFIX" {
   default     = "hpcr-dap"
 }
 
-variable DNS_DOMAIN {
+variable "DNS_INSTANCE_GUID" {
   type        = string
-  description = "DNS domain name for VSI."
+  description = "The GUID of the private DNS instance"
+}
+
+variable "DNS_DOMAIN" {
+  type        = string
+  description = "The name of the DNS zone that you want to create"
 }
 
 variable "DNS_RECORD_TTL" {
   type        = number
   description = "Time to live for a DNS record"
   default     = 60
-}
-
-variable "CONTACT" {
-  type        = string
-  description = "EMail address of the contact person for the deployment, will e.g. be used for the DNS records."
 }
 
 variable "PROFILE" {

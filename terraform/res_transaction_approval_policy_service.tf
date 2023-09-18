@@ -30,13 +30,14 @@ resource "ibm_is_floating_ip" "transaction_approval_policy_service_floating_ip" 
   tags   = local.tags
 }
 
-resource "ibm_dns_record" "transaction_approval_policy_service_dns_record" {
-  data               = ibm_is_floating_ip.transaction_approval_policy_service_floating_ip.address
-  domain_id          = data.ibm_dns_domain.dns_domain.id
-  host               = "${var.PREFIX}-tap"
-  responsible_person = replace(var.CONTACT, "@", ".")
-  ttl                = var.DNS_RECORD_TTL
-  type               = "a"
+resource "ibm_dns_resource_record" "transaction_approval_policy_service_dns_record" {
+  depends_on  = [ibm_dns_permitted_network.dap_dns_permittednetwork]
+  instance_id = "${var.DNS_INSTANCE_GUID}"
+  zone_id     = ibm_dns_zone.dap_dns_zone.zone_id
+  type        = "A"
+  name        = "${var.PREFIX}-tap"
+  rdata       = ibm_is_floating_ip.transaction_approval_policy_service_floating_ip.address
+  ttl         = var.DNS_RECORD_TTL
 }
 
 # log the floating IP for convenience

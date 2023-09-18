@@ -13,10 +13,6 @@ locals {
   tags = ["hpcr", "dap", var.PREFIX]
 }
 
-data "ibm_dns_domain" "dns_domain" {
-  name = var.DNS_DOMAIN
-}
-
 # the VPC
 resource "ibm_is_vpc" "dap_vpc" {
   name = format("%s-vpc", var.PREFIX)
@@ -70,6 +66,18 @@ resource "ibm_is_ssh_key" "dap_sshkey" {
   name       = format("%s-key", var.PREFIX)
   public_key = tls_private_key.dap_rsa_key.public_key_openssh
   tags       = local.tags
+}
+
+resource "ibm_dns_zone" "dap_dns_zone" {
+    name = "${var.DNS_DOMAIN}"
+    instance_id = "${var.DNS_INSTANCE_GUID}"
+}
+
+resource "ibm_dns_permitted_network" "dap_dns_permittednetwork" {
+    instance_id = "${var.DNS_INSTANCE_GUID}"
+    zone_id = ibm_dns_zone.dap_dns_zone.zone_id
+    vpc_crn = ibm_is_vpc.dap_vpc.crn
+    type = "vpc"
 }
 
 # locate the latest hyper protect image
