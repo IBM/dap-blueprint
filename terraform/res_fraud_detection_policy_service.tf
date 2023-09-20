@@ -30,6 +30,16 @@ resource "ibm_is_floating_ip" "fraud_detection_policy_service_floating_ip" {
   tags   = local.tags
 }
 
+resource "ibm_dns_resource_record" "fraud_detection_policy_service_dns_record" {
+  depends_on  = [ibm_dns_permitted_network.dap_dns_permittednetwork]
+  instance_id = "${var.DNS_INSTANCE_GUID}"
+  zone_id     = ibm_dns_zone.dap_dns_zone.zone_id
+  type        = "A"
+  name        = "${var.PREFIX}-fdp"
+  rdata       = ibm_is_floating_ip.fraud_detection_policy_service_floating_ip.address
+  ttl         = var.DNS_RECORD_TTL
+}
+
 # log the floating IP for convenience
 output "fraud_detection_policy_service_ip" {
   value = resource.ibm_is_floating_ip.fraud_detection_policy_service_floating_ip.address

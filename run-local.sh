@@ -23,6 +23,13 @@ export $(cat .env | grep -v ^#)
 SSH_PUBKEY=`cat ${SSH_PUBKEY_PATH}`
 echo "SSH_PUBKEY=${SSH_PUBKEY}" >> ${ENV_FILE}
 
+if ! grep -q TXQUEUE_HOST ${ENV_FILE}; then
+    echo "TXQUEUE_HOST=txqueue-host" >> ${ENV_FILE}
+fi
+if ! grep -q WALLETDB_HOST ${ENV_FILE}; then
+    echo "WALLETDB_HOST=walletdb-host" >> ${ENV_FILE}
+fi
+
 pushd terraform > /dev/null
 ./gen_compose.sh
 popd > /dev/null
@@ -60,6 +67,18 @@ elif [ ${SERVICE} == TAP ]; then
 elif [ ${SERVICE} == SS ]; then
     cp .env.local terraform/signing_service/.env
     pushd terraform/signing_service > /dev/null
+    docker-compose down
+    docker-compose up -d
+    popd > /dev/null
+elif [ ${SERVICE} == TXQUEUE ]; then
+    cp .env.local terraform/txqueue/.env
+    pushd terraform/txqueue > /dev/null
+    docker-compose down
+    docker-compose up -d
+    popd > /dev/null
+elif [ ${SERVICE} == WALLETDB ]; then
+    cp .env.local terraform/walletdb/.env
+    pushd terraform/walletdb > /dev/null
     docker-compose down
     docker-compose up -d
     popd > /dev/null

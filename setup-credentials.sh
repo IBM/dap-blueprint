@@ -12,16 +12,6 @@ PUBKEY_FILE=${1}
 
 CRYPTO=./src/dap_util/dap_crypto.py
 
-# user_id and token are stored in .dbaas.tmp/dbaas.token in the JSON
-# format.
-./src/dap_util/dbaas_api.py get_token ${DBAAS_API_KEY}
-DBAAS_USER_ID=`cat .dbaas.tmp/dbaas.token | jq -r .user_id`
-DBAAS_TOKEN=`cat .dbaas.tmp/dbaas.token | jq -r .access_token`
-ENC_DBAAS_USER_ID=`${CRYPTO} rsa_encrypt ${PUBKEY_FILE} ${DBAAS_USER_ID}`
-TMP=`${CRYPTO} rsa_encrypt_long ${PUBKEY_FILE} ${DBAAS_TOKEN}`
-ENC_DBAAS_TOKEN_AES_ENC_KEY=`echo ${TMP} | jq -r .aes_encrypted_key`
-ENC_DBAAS_TOKEN=`echo ${TMP} | jq -r .cipher_text`
-
 ENC_COS_API_KEY=`${CRYPTO} rsa_encrypt ${PUBKEY_FILE} ${COS_API_KEY}`
 ENC_COS_ID=`${CRYPTO} rsa_encrypt ${PUBKEY_FILE} ${COS_ID}`
 
@@ -65,10 +55,6 @@ fi
 FILE=credentials.env
 
 echo "# This is a set of encrypted credentials provided from a workload provider" > ${FILE}
-
-echo "ENC_DBAAS_USER_ID=${ENC_DBAAS_USER_ID}" >> ${FILE}
-echo "ENC_DBAAS_TOKEN_AES_ENC_KEY=${ENC_DBAAS_TOKEN_AES_ENC_KEY}" >> ${FILE}
-echo "ENC_DBAAS_TOKEN=${ENC_DBAAS_TOKEN}" >> ${FILE}
 
 echo "ENC_COS_API_KEY=${ENC_COS_API_KEY}" >> ${FILE}
 echo "ENC_COS_ID=${ENC_COS_ID}" >> ${FILE}

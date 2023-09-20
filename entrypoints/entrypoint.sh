@@ -2,12 +2,20 @@
 
 SUPERVISORD_CONF=/usr/local/etc/supervisord.conf
 
-if [ ${DAP_SERVICE} != RHSSO ]; then
-    echo "${RHSSO_HOST} rhsso-host" >> /etc/hosts
+# This code should run only for HPVS deployment since RHSSO_HOST is not set for local deployment.
+if [ ${DAP_SERVICE} != RHSSO ] && [ -n "${RHSSO_HOST}" ]; then
+    echo "Setting rhsso-host to /etc/hosts"
+    RHSSO_IP=`host ${RHSSO_HOST}`
+    RHSSO_IP=${RHSSO_IP##* }
+    echo "${RHSSO_IP} rhsso-host" >> /etc/hosts
 fi
 
-if [ -n "${DAP_HOST}" ]; then
-    echo "${DAP_HOST} dap-host" >> /etc/hosts
+# This code should run only for HPVS deployment since RHSSO_HOST is not set for local deployment.
+if [ ${DAP_SERVICE} != TP] && [ -n "${DAP_HOST}" ]; then
+    echo "Setting dap-host to /etc/hosts"
+    DAP_IP=`host ${DAP_HOST}`
+    DAP_IP=${DAP_IP##* }
+    echo "${DAP_IP} dap-host" >> /etc/hosts
 fi
 
 mkdir /dap-logs

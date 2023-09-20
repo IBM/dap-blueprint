@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-resource "ibm_is_subnet_reserved_ip" "rhsso_reserved_ip" {
-  subnet    = ibm_is_subnet.dap_subnet.id
-  name      = format("%s-rhsso-reserved-ip", var.PREFIX)
-  address   = "${replace(ibm_is_subnet.dap_subnet.ipv4_cidr_block, "0/24", 10)}"
-}
+# resource "ibm_is_subnet_reserved_ip" "rhsso_reserved_ip" {
+#   subnet    = ibm_is_subnet.dap_subnet.id
+#   name      = format("%s-rhsso-reserved-ip", var.PREFIX)
+#   address   = "${replace(ibm_is_subnet.dap_subnet.ipv4_cidr_block, "0/24", 10)}"
+# }
 
 # construct the VSI
 resource "ibm_is_instance" "rhsso_vsi" {
@@ -25,9 +25,9 @@ resource "ibm_is_instance" "rhsso_vsi" {
     name            = "eth0"
     subnet          = ibm_is_subnet.dap_subnet.id
     security_groups = [ibm_is_security_group.dap_security_group.id]
-    primary_ip {
-      reserved_ip = ibm_is_subnet_reserved_ip.rhsso_reserved_ip.reserved_ip
-    }
+    # primary_ip {
+    #   reserved_ip = ibm_is_subnet_reserved_ip.rhsso_reserved_ip.reserved_ip
+    # }
   }
 }
 
@@ -38,10 +38,20 @@ resource "ibm_is_floating_ip" "rhsso_floating_ip" {
   tags   = local.tags
 }
 
-output "rhsso_reserved_ip" {
-  value = ibm_is_subnet_reserved_ip.rhsso_reserved_ip.address
-  description = "The reserved IP address of the VSI"
+resource "ibm_dns_resource_record" "rhsso_dns_record" {
+  depends_on  = [ibm_dns_permitted_network.dap_dns_permittednetwork]
+  instance_id = "${var.DNS_INSTANCE_GUID}"
+  zone_id     = ibm_dns_zone.dap_dns_zone.zone_id
+  type        = "A"
+  name        = "${var.PREFIX}-rhsso"
+  rdata       = ibm_is_floating_ip.rhsso_floating_ip.address
+  ttl         = var.DNS_RECORD_TTL
 }
+
+# output "rhsso_reserved_ip" {
+#   value = ibm_is_subnet_reserved_ip.rhsso_reserved_ip.address
+#   description = "The reserved IP address of the VSI"
+# }
 
 # log the floating IP for convenience
 output "rhsso_floating_ip" {

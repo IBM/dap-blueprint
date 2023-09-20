@@ -6,7 +6,7 @@
 
 . .env.tf
 
-WORKLOADS="rhsso signing_service transaction_proposer authorization_policy_service fraud_detection_policy_service transaction_approval_policy_service"
+WORKLOADS="rhsso signing_service transaction_proposer authorization_policy_service fraud_detection_policy_service transaction_approval_policy_service txqueue walletdb"
 
 unset DELETE_LINES
 if [[ ${DOCKER_NETWORK_EXTERNAL} == true ]]; then
@@ -17,5 +17,9 @@ for WORKLOAD in ${WORKLOADS}
 do
     rm -rf ${WORKLOAD}
     mkdir -p ${WORKLOAD}
-    sed ${DELETE_LINES} -e "s/DAP_IMAGE/${TF_VAR_DAP_IMAGE//\//\\/}/g" -e "s/DOCKER_NETWORK_EXTERNAL/${DOCKER_NETWORK_EXTERNAL}/g" ./compose_templates/${WORKLOAD}.yml > ./${WORKLOAD}/docker-compose.yml
+    if [ ${WORKLOAD} = txqueue ] || [ ${WORKLOAD} = walletdb ]; then
+        sed ${DELETE_LINES} -e "s/MONGO_IMAGE/${TF_VAR_MONGO_IMAGE//\//\\/}/g" -e "s/DOCKER_NETWORK_EXTERNAL/${DOCKER_NETWORK_EXTERNAL}/g" ./compose_templates/${WORKLOAD}.yml > ./${WORKLOAD}/docker-compose.yml
+    else
+        sed ${DELETE_LINES} -e "s/DAP_IMAGE/${TF_VAR_DAP_IMAGE//\//\\/}/g" -e "s/DOCKER_NETWORK_EXTERNAL/${DOCKER_NETWORK_EXTERNAL}/g" ./compose_templates/${WORKLOAD}.yml > ./${WORKLOAD}/docker-compose.yml
+    fi
 done

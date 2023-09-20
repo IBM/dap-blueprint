@@ -1160,12 +1160,7 @@ class DAP_KeyStore(Software_KeyStore):
         if not DAP_KeyStore.dap_resource:
             if 'DAP_SERVICE' not in os.environ:
                 raise Exception('DAP_SERVICE not specified')
-            DAP_KeyStore.dap_resource = DAPDBaaSResource(reboot=True,
-                                                         serviceid=dap_consts.SERVICE_NAME_MAP[os.environ['DAP_SERVICE']])
-            # Use the following when you run electrum locally
-            # DAP_KeyStore.dap_resource = DAPDBaaSResource(reboot=True,
-            #                                              serviceid=dap_consts.SERVICE_NAME_MAP[os.environ['DAP_SERVICE']],
-            #                                              ca_file=os.environ['DBAAS_CA_FILE'])
+            DAP_KeyStore.dap_resource = DAPDBaaSResource(serviceid=dap_consts.SERVICE_NAME_MAP[os.environ['DAP_SERVICE']])
 
         res = {
             'status': None,

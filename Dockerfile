@@ -32,7 +32,7 @@ RUN apt-get update && \
     pip3 install --upgrade distlib && \
     pip3 install wheel
 
-RUN pip3 install flask==1.1.2 flask_restx flask_sqlalchemy flask_jwt_extended pymongo==3.12.2 asn1==2.2.0 cython ibm-cos-sdk flask-mail==0.9.1 flask_cors certifi requests pyyaml dnspython pyaes ecdsa qrcode aiorpcx aiohttp aiohttp_socks bitstring jsonrpcclient==3.3.5 jsonrpcserver==4.2.0 jinja2==3.0.3 werkzeug==2.0.3 SQLAlchemy==1.4.46
+RUN pip3 install flask==1.1.2 flask_restx flask_sqlalchemy flask_jwt_extended pymongo==4.5.0 asn1==2.2.0 cython ibm-cos-sdk flask-mail==0.9.1 flask_cors certifi requests pyyaml dnspython pyaes ecdsa qrcode aiorpcx aiohttp aiohttp_socks bitstring jsonrpcclient==3.3.5 jsonrpcserver==4.2.0 jinja2==3.0.3 werkzeug==2.0.3 SQLAlchemy==1.4.46
 ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
 RUN pip3 install cryptography==3.4.8 pycryptodome argon2 pycryptodomex pyopenssl
 RUN pip3 install grpcio===1.48.1 grpcio-tools==1.48.1
@@ -47,7 +47,7 @@ ENV PYTHONUNBUFFERED=1
 ARG GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git curl procps less wget unzip jq software-properties-common openssh-server patch libgmp3-dev libffi-dev libssl-dev libxml2-dev libxslt-dev && \
+    apt-get install -y --no-install-recommends git curl procps less wget unzip jq software-properties-common openssh-server patch libgmp3-dev libffi-dev libssl-dev libxml2-dev libxslt-dev ca-certificates gnupg libcurl4-openssl-dev dnsutils && \
     mkdir /var/run/sshd && \
     apt-get install -y --no-install-recommends python3.10 python3-pip python3-setuptools python3.10-distutils x11vnc xvfb python3-pyqt5 && \
     cd /usr/bin/ && rm -rf python3 && ln -s python3.10 python3 && \
@@ -120,6 +120,9 @@ RUN mkdir -p /git/Authorization_Policy.git/refs && \
 RUN rm -rf /redhat && \
     rm -rf /redhat-packages
 
+# only for debugging
+RUN apt-get install -y emacs
+
 ### Add contents without git clone to ease development
 WORKDIR /git
 RUN mkdir -p dap-blueprint
@@ -133,14 +136,6 @@ RUN cd dap-blueprint/src/dap_client && \
     cd ../../DigitalAssets-Electrum && \
     pip3 install -e .
 
-WORKDIR /git/dap-blueprint
-ARG DBAAS_CA
-ENV DBAAS_CA=${DBAAS_CA} \
-    DBAAS_CA_FILE=/git/dap-blueprint/dbaas-cert.pem
-RUN echo -----BEGIN CERTIFICATE----- > dbaas-cert.pem && \
-    echo "${DBAAS_CA}" >> dbaas-cert.pem && \
-    echo -----END CERTIFICATE----- >> dbaas-cert.pem
-
 ARG ELECTRUM_USER=electrum
 ARG ELECTRUM_PASSWORD=passw0rd
 ARG ELECTRUM_DATA=/data
@@ -149,9 +144,10 @@ ENV ELECTRUM_USER=${ELECTRUM_USER} \
     ELECTRUM_DATA=${ELECTRUM_DATA}
 RUN mkdir -p ${ELECTRUM_DATA}/wallets
 
-ARG BUILD=5
+ARG BUILD=6
 
 ### In production, a private key must not be displayed. ###
+WORKDIR /git/dap-blueprint
 ARG DAP_ROOT_DIR=/git/dap-blueprint
 ARG BUILD_TIME_SECRET
 ARG OLD_BUILD_TIME_SECRET
@@ -170,3 +166,4 @@ RUN mkdir -p secrets && \
 
 WORKDIR /git/dap-blueprint/entrypoints
 ENTRYPOINT ["./entrypoint.sh"]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]

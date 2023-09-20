@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import argparse, json, os, hmac, hashlib
+import argparse, json, os, hmac, hashlib, string, secrets
 from posix import environ
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
@@ -170,6 +170,14 @@ def decrypt_and_hmac_with_common_keys(cipher_text, common_key1, common_key2):
         raise Exception('HMAC verification failure')
     return message
 
+def gen_password(size=16):
+   chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
+   password = ''.join(secrets.choice(chars) for x in range(size - 3))
+   password = password + secrets.choice(string.ascii_uppercase)
+   password = password + secrets.choice(string.ascii_lowercase)
+   password = password + secrets.choice(string.digits)
+   return password
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(title='commands')
@@ -225,6 +233,9 @@ if __name__ == '__main__':
     decrypt_and_hmac.add_argument('key2')
     decrypt_and_hmac.set_defaults(func=decrypt_and_hmac_with_common_keys)
 
+    gen_password_parser = subparsers.add_parser('gen_password', help='Generate a password')
+    gen_password_parser.set_defaults(func=gen_password)
+
     args = parser.parse_args()
 
     if hasattr(args, 'func'):
@@ -258,6 +269,9 @@ if __name__ == '__main__':
         elif args.func is decrypt_and_hmac_with_common_keys:
             message = decrypt_and_hmac_with_common_keys(args.cipher_text, bytes.fromhex(args.key1), bytes.fromhex(args.key2))
             print(message)
+        elif args.func is gen_password:
+            password = gen_password()
+            print(password)
         else:
             raise Exception('Unknown command ' + str(args.func))
     else:

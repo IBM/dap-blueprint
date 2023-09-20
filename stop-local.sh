@@ -30,6 +30,14 @@ elif [ ${SERVICE} == SS ]; then
     pushd terraform/signing_service > /dev/null
     docker-compose down
     popd > /dev/null
+elif [ ${SERVICE} == TXQUEUE ]; then
+    pushd terraform/txqueue > /dev/null
+    docker-compose down
+    popd > /dev/null
+elif [ ${SERVICE} == WALLETDB ]; then
+    pushd terraform/walletdb > /dev/null
+    docker-compose down
+    popd > /dev/null
 else
     WORKLOADS="transaction_proposer signing_service authorization_policy_service fraud_detection_policy_service transaction_approval_policy_service"
     for WORKLOAD in ${WORKLOADS}

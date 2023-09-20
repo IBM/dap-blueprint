@@ -63,6 +63,22 @@ variable "PREFIX" {
   default     = "hpcr-dap"
 }
 
+variable "DNS_INSTANCE_GUID" {
+  type        = string
+  description = "The GUID of the private DNS instance"
+}
+
+variable "DNS_DOMAIN" {
+  type        = string
+  description = "The name of the DNS zone that you want to create"
+}
+
+variable "DNS_RECORD_TTL" {
+  type        = number
+  description = "Time to live for a DNS record"
+  default     = 60
+}
+
 variable "PROFILE" {
   type        = string
   description = "Profile used for the VSI, this has to be a secure execution profile in the format Xz2e-YxZ, e.g. bz2e-1x4."
@@ -107,21 +123,6 @@ variable "DAP_REBOOT" {
   type        = string
   description = "If True, DAP is rebooted. Otherwise, DAP is booted from scratch."
   default     = "True"
-}
-
-variable "ENC_DBAAS_USER_ID" {
-  type        = string
-  description = "Encrypted user id to create Hyper Protect DBaaS instances."
-}
-
-variable "ENC_DBAAS_TOKEN_AES_ENC_KEY" {
-  type        = string
-  description = "Encrypted AES key for an encrypted token to create Hyper Protect DBaaS instances."
-}
-
-variable "ENC_DBAAS_TOKEN" {
-  type        = string
-  description = "Encryped token to create Hyper Protect DBaaS instances."
 }
 
 variable "ENC_COS_API_KEY" {
@@ -210,18 +211,6 @@ variable "HPCS_INTERVAL" {
   default     = "0"
 }
 
-variable "RHSSO_HOST" {
-  type        = string
-  description = "IP address of Red Hat Single Sign-On server."
-  default     = ""
-}
-
-variable "DAP_HOST" {
-  type        = string
-  description = "IP address of transaction proposer."
-  default     = ""
-}
-
 variable "TRANSACTION_PROPOSER_PORT" {
   type        = string
   description = "Transaction proposer port"
@@ -242,44 +231,44 @@ variable "RHSSO_SSH_PORT" {
 
 variable "TRANSACTION_PROPOSER_SSH_PORT" {
   type        = string
-  description = "SH port for transaction proposer (only for debugging)"
-  default     = "6001"
+  description = "SSH port for transaction proposer (only for debugging)"
+  default     = "6000"
 }
 
 variable "AUTHORIZATION_POLICY_SERVICE_SSH_PORT" {
   type        = string
-  description = "SH port for authorization policy service (only for debugging)"
-  default     = "6002"
+  description = "SSH port for authorization policy service (only for debugging)"
+  default     = "6000"
 }
 
 variable "FRAUD_DETECTION_POLICY_SERVICE_SSH_PORT" {
   type        = string
-  description = "SH port for fraud-detection policy service (only for debugging)"
-  default     = "6003"
+  description = "SSH port for fraud-detection policy service (only for debugging)"
+  default     = "6000"
 }
 
 variable "TRANSACTION_APPROVAL_POLICY_SERVICE_SSH_PORT" {
   type        = string
-  description = "SH port for transaction-approval policy service (only for debugging)"
-  default     = "6004"
+  description = "SSH port for transaction-approval policy service (only for debugging)"
+  default     = "6000"
 }
 
 variable "SIGNING_SERVICE_SSH_PORT" {
   type        = string
-  description = "SH port for signing service (only for debugging)"
-  default     = "6005"
+  description = "SSH port for signing service (only for debugging)"
+  default     = "6000"
 }
 
-variable "TXQUEUE_NAME" {
+variable "TXQUEUE_SSH_PORT" {
   type        = string
-  description = "Instance name of txqueue."
-  default     = "txqueue"
+  description = "SSH port for txqueue (only for debugging)"
+  default     = "6000"
 }
 
-variable "WALLETDB_NAME" {
+variable "WALLETDB_SSH_PORT" {
   type        = string
-  description = "Instance name of walletdb."
-  default     = "walletdb"
+  description = "SSH port for walletdb (only for debugging)"
+  default     = "6000"
 }
 
 variable "MAIL_USERNAME" {
@@ -290,17 +279,6 @@ variable "MAIL_USERNAME" {
 variable "MAIL_PASSWORD" {
   type        = string
   description = "Password of your SMTP server (e.g., mailtrap smtp server)."
-}
-
-variable "DBAAS_RESOURCE_GROUP" {
-  type        = string
-  description = "Resource group to create a Hyper Protect DBaaS instance."
-}
-
-variable "DBAAS_PLAN" {
-  type        = string
-  description = "Plan to create a Hyper Protect DBaaS instance."
-  default     = "mongodb-flexible"
 }
 
 variable "RHSSO_ADMIN_PASSWORD" {
@@ -333,4 +311,16 @@ variable "SIGNING_SERVICE_PORT" {
   type        = string
   description = "Signing service port."
   default     = "5002"
+}
+
+variable "TXQUEUE_PORT" {
+  type        = string
+  description = "Transaction queue port."
+  default     = "27017"
+}
+
+variable "WALLETDB_PORT" {
+  type        = string
+  description = "Wallet DB port."
+  default     = "27018"
 }

@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # construct the VSI
-resource "ibm_is_instance" "transaction_approval_policy_service_vsi" {
-  name    = format("%s-tap-vsi", var.PREFIX)
+resource "ibm_is_instance" "txqueue_vsi" {
+  name    = format("%s-txqueue-vsi", var.PREFIX)
   image   = local.hyper_protect_image.id
   profile = var.PROFILE
   keys    = [ibm_is_ssh_key.dap_sshkey.id]
@@ -13,7 +13,7 @@ resource "ibm_is_instance" "transaction_approval_policy_service_vsi" {
   zone    = "${var.REGION}-${var.ZONE}"
 
   # the user data field carries the encrypted contract, so all information visible at the hypervisor layer is encrypted
-  user_data = file("./tap.yml")
+  user_data = file("./txqueue.yml")
 
   primary_network_interface {
     name            = "eth0"
@@ -24,24 +24,24 @@ resource "ibm_is_instance" "transaction_approval_policy_service_vsi" {
 }
 
 # attach a floating IP since we would like to access the embedded server via the internet
-resource "ibm_is_floating_ip" "transaction_approval_policy_service_floating_ip" {
-  name   = format("%s-tap-floating-ip", var.PREFIX)
-  target = ibm_is_instance.transaction_approval_policy_service_vsi.primary_network_interface[0].id
+resource "ibm_is_floating_ip" "txqueue_floating_ip" {
+  name   = format("%s-txqueue-floating-ip", var.PREFIX)
+  target = ibm_is_instance.txqueue_vsi.primary_network_interface[0].id
   tags   = local.tags
 }
 
-resource "ibm_dns_resource_record" "transaction_approval_policy_service_dns_record" {
+resource "ibm_dns_resource_record" "txqueue_dns_record" {
   depends_on  = [ibm_dns_permitted_network.dap_dns_permittednetwork]
   instance_id = "${var.DNS_INSTANCE_GUID}"
   zone_id     = ibm_dns_zone.dap_dns_zone.zone_id
   type        = "A"
-  name        = "${var.PREFIX}-tap"
-  rdata       = ibm_is_floating_ip.transaction_approval_policy_service_floating_ip.address
+  name        = "${var.PREFIX}-txqueue"
+  rdata       = ibm_is_floating_ip.txqueue_floating_ip.address
   ttl         = var.DNS_RECORD_TTL
 }
 
 # log the floating IP for convenience
-output "transaction_approval_policy_service_ip" {
-  value = resource.ibm_is_floating_ip.transaction_approval_policy_service_floating_ip.address
+output "txqueue_ip" {
+  value = resource.ibm_is_floating_ip.txqueue_floating_ip.address
   description = "The public IP address of the VSI" 
 }

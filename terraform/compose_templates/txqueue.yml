@@ -1,7 +1,7 @@
 version: '2.4'
 
 x-images:
-  - &dap-base           DAP_IMAGE
+  - &dap-base           MONGO_IMAGE
 
 networks:
   dap-network:
@@ -14,20 +14,19 @@ networks:
 
 services:
 
-  rhsso:
+  txqueue:
     image: *dap-base
-    hostname: rhsso-host
+    hostname: txqueue-host
     networks:
       - dap-network
     ports:
-      - "${RHSSO_SSH_PORT}:22"
-      - "8180:8180"
-      - "8543:8543"
+      - "${TXQUEUE_SSH_PORT}:22"
+      - "${TXQUEUE_PORT}:27017"
     environment:
       ZHSM: ${ZHSM}
       ZHSM_CREDENTIAL: ${ZHSM_CREDENTIAL}
       SSH_PUBKEY: ${SSH_PUBKEY}
-      DAP_SERVICE: RHSSO
+      DAP_SERVICE: TXQUEUE
       ARGON2_SALT: ${ARGON2_SALT}
       DEPLOY_TIME_SECRET: ${DEPLOY_TIME_SECRET}
       OLD_DEPLOY_TIME_SECRET: ${OLD_DEPLOY_TIME_SECRET}
@@ -58,3 +57,14 @@ services:
       RHPAM_ADMIN_PASSWORD: ${RHPAM_ADMIN_PASSWORD}
       RHPAM_USER_PASSWORD: ${RHPAM_USER_PASSWORD}
       RHPAM_APPROVER_PASSWORD: ${RHPAM_APPROVER_PASSWORD}
+      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      GOSU_VERSION: 1.16
+      JSYAML_VERSION: 3.13.1
+      MONGO_PACKAGE: mongodb-org
+      MONGO_REPO: repo.mongodb.org
+      MONGO_MAJOR: 7.0
+      MONGO_VERSION: 7.0.0
+      HOME: /data/db
+      TXQUEUE_HOST: ${TXQUEUE_HOST}
+      TXQUEUE_PORT: ${TXQUEUE_PORT}
+      TXQUEUE_CERT_DIR: /mongo-cert
