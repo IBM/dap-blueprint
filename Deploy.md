@@ -10,33 +10,8 @@
   - [Local Deployment](#local-deployment)
   - [Secure Build](#secure-build)
   - [Deployment of DAP Blueprint on IBM Cloud Hyper Protect Virtual Server for IBM Cloud VPC](#deployment-of-dap-blueprint-on-ibm-cloud-hyper-protect-virtual-server-for-ibm-cloud-vpc)
-  - [Host name aliasing in /etc/hosts](#host-name-aliasing-in-etchosts)
-  - [Two-Factor Authentication](#two-factor-authentication)
-  - [DAP CLI](#dap-cli)
-    - [CLI for Transaction Proposer REST APIs](#cli-for-transaction-proposer-rest-apis)
-      - [Obtain a bearer token](#obtain-a-bearer-token)
-      - [Obtain a bearer token with two-factor authentication](#obtain-a-bearer-token-with-two-factor-authentication)
-      - [Obtain public keys of policy services](#obtain-public-keys-of-policy-services)
-      - [Create a master seed for users](#create-a-master-seed-for-users)
-      - [Derive a public key](#derive-a-public-key)
-      - [Sign a transaction](#sign-a-transaction)
-    - [Approval process in Red Hat Process Automation Manager (RHPAM)](#approval-process-in-red-hat-process-automation-manager-rhpam)
-    - [CLI for Approval Server REST APIs](#cli-for-approval-server-rest-apis)
-      - [Obtain a bearer token](#obtain-a-bearer-token-1)
-      - [Obtain a bearer token with two-factor authentication](#obtain-a-bearer-token-with-two-factor-authentication-1)
-      - [Obtain the details of a transaction](#obtain-the-details-of-a-transaction)
-      - [Obtain transactions of a user within the specified hours](#obtain-transactions-of-a-user-within-the-specified-hours)
-  - [How to use Electrum frontend](#how-to-use-electrum-frontend)
-    - [Run an Electrum JSON RPC server for Bitcoin Testnet](#run-an-electrum-json-rpc-server-for-bitcoin-testnet)
-    - [Electrum CLI](#electrum-cli)
-      - [Cerate a wallet](#cerate-a-wallet)
-      - [Load a wallet](#load-a-wallet)
-      - [Get a un-used address of your wallet](#get-a-un-used-address-of-your-wallet)
-      - [Get your balance](#get-your-balance)
-      - [Create a transaction to send an amount of bitcoins](#create-a-transaction-to-send-an-amount-of-bitcoins)
-      - [Get a signed transaction](#get-a-signed-transaction)
-      - [Broadcast a signed transaction](#broadcast-a-signed-transaction)
-    - [Electrum UI](#electrum-ui)
+- [cd dap-blueprint](#cd-dap-blueprint)
+- [cd ./run-electrum.sh](#cd-run-electrumsh)
     - [Funding and transferring](#funding-and-transferring)
 
 <a id="overview"></a>
@@ -205,12 +180,10 @@ This is a procedure to deploy the DAP Blueprint image, which you built in the st
     | Environment Variable                         |Description                                                                 |
     | -------------------------------------------- | -------------------------------------------------------------------------- |
     | IC_API_KEY                                   | IBM Cloud API key which you creatated at Prerequisites 2. |
-    | IAAS_CLASSIC_USERNAME                        | IBM Cloud username for classic infrastructure. You can find the user name from your IBM Cloud console ==> Manage (Top middle tab) ==> IAM ==> Users ==> <Your account name> ==> User details ==> VPN password.  |
-    | IAAS_CLASSIC_API_KEY                         | IBM Cloud API key for classic infrastructure. You can find the user name from your IBM Cloud console ==> Manage (Top middle tab) ==> IAM ==> Users ==> <Your account name> ==> User details ==> VPN password.      |
     | REGION                                       | IBM Cloud region which you want to deploy your DAP Blueprint instances (e.g., jp-tok). Choose a region that supports HPVS, not all regions do. This is not used for local deployment. |
     | ZONE                                         | IBM Cloud zone which you want to deploy your DAP Blueprint instances (e.g., 1). |
-    | DNS_DOMAIN                                   | DNS domain name which you created at Prerequisites 7. |
-    | CONTACT                                      | E-mail address which you used to create a DNS domain at at Prerequisites 7. |
+    | DNS_DOMAIN                                   | DNS domain name which is created in your DNS service instance. |
+    | DNS_INSTANCE_GUID                            | GUID of your DNS service instance which is created at Prerequisites 7. |
     | REGISTRY_USERNAME                            | Username to login IBM Cloud. This should be `iamapikey`. |
     | REGISTRY_PASSWORD                            | IBM Cloud API key which you creatated at Prerequisites 2. |
     | COS_API_KEY                                  | IBM Cloud API key which you creatated at Prerequisites 2. |
@@ -464,10 +437,7 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
    rhsso_floating_ip = "xxx.xxx.xxx.xxx"
    ```
 
-   Please add this IP address to `/etc/hosts` in a machine, from which you want to access DAP Blueprint, as follows.
-   ```
-   <RHSSO IP address>   rhsso-host
-   ```
+   Please memo this IP address which is used for hostname aliasing in next section.
 
    You can check if the deployment succeeds in your logging instance.
 
@@ -495,6 +465,15 @@ This is a procedure to deploy DAP Blueprint on [IBM Cloud Hyper Protect Virtual 
 
    The second argument of this script specifies if you want to boot the service from scratch or reboot it. When `False` is specified, the services are booted from scratch. When `True` is specified, the services are rebooted from the backup information stored in your COS instance. We recommend `reboot` (i.e., `True` option) after you create the services once to reduce the fee for IBM Cloud.
 
+   This script outputs the IP address of each service. The following is an example output.
+   ```
+   authorization_policy_service_ip = "xxx.xxx.xxx.xxx"
+   fraud_detection_policy_service_ip = "xxx.xxx.xxx.xxx"
+   transaction_approval_policy_service_ip = "xxx.xxx.xxx.xxx"
+   transaction_proposer_ip = "xxx.xxx.xxx.xxx"
+   ``
+   Please memo these IP addresses which is used for host name aliasing in next section.
+
 <a id="hostname"></a>
 
 ## Host name aliasing in /etc/hosts
@@ -511,16 +490,6 @@ When you deploy DAP Blueprint locally, please set `127.0.0.1` to all of the abov
 ```
 127.0.0.1 rhsso-host dap-host rhpam-host approval-host
 ```
-
-When you deploy DAP Blueprint on IBM Cloud Hyper Protect Virtual Server for IBM Cloud VPC, please obtain the IP addresses by running the following commands.
-
-```
-# nslookup hpcr-dap-rhsso.<Your DNS domain>
-# nslookup hpcr-dap-tp.<Your DNS domain>
-# nslookup hpcr-dap-ap.<Your DNS domain>
-```
-
-The first command outputs the IP address for rhss-host. The second command outputs the IP address for dap-host. The last command outputs the IP address for rhpam-host and approval-host.
 
 <a id="2fa"></a>
 
