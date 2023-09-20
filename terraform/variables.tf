@@ -63,20 +63,20 @@ variable "PREFIX" {
   default     = "hpcr-dap"
 }
 
-variable DNS_DOMAIN {
+variable "DNS_INSTANCE_GUID" {
   type        = string
-  description = "DNS domain name for VSI."
+  description = "The GUID of the private DNS instance"
+}
+
+variable "DNS_DOMAIN" {
+  type        = string
+  description = "The name of the DNS zone that you want to create"
 }
 
 variable "DNS_RECORD_TTL" {
   type        = number
   description = "Time to live for a DNS record"
   default     = 60
-}
-
-variable "CONTACT" {
-  type        = string
-  description = "EMail address of the contact person for the deployment, will e.g. be used for the DNS records."
 }
 
 variable "PROFILE" {
@@ -232,43 +232,43 @@ variable "RHSSO_SSH_PORT" {
 variable "TRANSACTION_PROPOSER_SSH_PORT" {
   type        = string
   description = "SSH port for transaction proposer (only for debugging)"
-  default     = "6001"
+  default     = "6000"
 }
 
 variable "AUTHORIZATION_POLICY_SERVICE_SSH_PORT" {
   type        = string
   description = "SSH port for authorization policy service (only for debugging)"
-  default     = "6002"
+  default     = "6000"
 }
 
 variable "FRAUD_DETECTION_POLICY_SERVICE_SSH_PORT" {
   type        = string
   description = "SSH port for fraud-detection policy service (only for debugging)"
-  default     = "6003"
+  default     = "6000"
 }
 
 variable "TRANSACTION_APPROVAL_POLICY_SERVICE_SSH_PORT" {
   type        = string
   description = "SSH port for transaction-approval policy service (only for debugging)"
-  default     = "6004"
+  default     = "6000"
 }
 
 variable "SIGNING_SERVICE_SSH_PORT" {
   type        = string
   description = "SSH port for signing service (only for debugging)"
-  default     = "6005"
+  default     = "6000"
 }
 
 variable "TXQUEUE_SSH_PORT" {
   type        = string
   description = "SSH port for txqueue (only for debugging)"
-  default     = "6006"
+  default     = "6000"
 }
 
 variable "WALLETDB_SSH_PORT" {
   type        = string
   description = "SSH port for walletdb (only for debugging)"
-  default     = "6007"
+  default     = "6000"
 }
 
 variable "MAIL_USERNAME" {
