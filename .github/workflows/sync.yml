@@ -1,0 +1,25 @@
+name: Repo Sync
+
+on:
+  schedule: 
+  - cron: '0 0 * * *'
+
+jobs:
+  repo-sync:
+    name: Repo Sync
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout public repo code
+      uses: actions/checkout@v3
+    - name: Set up Git configuration
+      run: |
+        git config --global user.name "${{ secrets.GIT_USER_NAME }}"
+        git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
+    - name: Sync internal code repo to main branch 
+      uses: repo-sync/github-sync@v2
+      with:
+        source_repo: ${{ secrets.SOURCE_REPO }}
+        source_branch: main
+        destination_branch: main
+        github_token: ${{ secrets.WORKFLOW_TOKEN }}
+
