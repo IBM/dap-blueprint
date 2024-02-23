@@ -15,11 +15,27 @@ jobs:
       run: |
         git config --global user.name "${{ secrets.GIT_USER_NAME }}"
         git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
-    - name: Sync internal code repo to main branch 
-      uses: repo-sync/github-sync@v2
-      with:
-        source_repo: ${{ secrets.SOURCE_REPO }}
-        source_branch: main
-        destination_branch: main
-        github_token: ${{ secrets.WORKFLOW_TOKEN }}
+    - name: Sync code from internal repo to public repo main branch 
+      run: |
+        echo "Remove extra headers configured for requests"
+        git config --unset-all http."https://github.com/".extraheader || :
+        
+        echo "Set origin URL with token"
+        git remote set-url origin "https://${{ secrets.WORKFLOW_TOKEN }}@github.com/$GITHUB_REPOSITORY"
 
+        echo "Adding upstream"
+        git remote add upstream ${{ secrets.SOURCE_REPO }}
+
+        echo "Fetching upstream"
+        git fetch upstream --quiet
+
+        echo "Pushing changings from upstream to origin"
+        git push origin "refs/remotes/upstream/main:refs/heads/main" --force
+
+        echo "Force sync all tags"
+        git tag -d $(git tag -l) > /dev/null
+        git fetch upstream --tags --quiet
+        git push origin --tags --force
+        
+        echo "Removing upstream"
+        git remote rm upstream
